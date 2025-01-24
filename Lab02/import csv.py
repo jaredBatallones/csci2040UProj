@@ -1,6 +1,6 @@
 import csv
 
-file_path = "catalog_data.csv"
+file_path = "industry_sic.csv"
 
 def read_database(file_path):
     catalog = []
@@ -10,6 +10,10 @@ def read_database(file_path):
             catalog.append(row)
     return catalog
 
-# Test
-data = read_database(file_path)
-print("Catalog Data:", data)
+def write_database(file_path, row):
+    catalog = read_database(file_path)
+    catalog.append(row)
+    with open(file_path, mode='w') as file:
+        writer = csv.writer(file)
+        writer.writerow(catalog)
+    return
