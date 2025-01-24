@@ -1,19 +1,21 @@
 import Front_end
+import import_csv
 
-def checkInput(input):
-    if input.lower() == "view":
-        Front_end.data()
+csvFile = import_csv.read_database()
+
+while True:
+    userInput = input()
+
+    if userInput.lower() == "view":
+        Front_end.data(csvFile)
         print("\n--------------------------")
 
-    elif input.lower() == "add":
+    elif userInput.lower() == "add":
         add()
         print("\n--------------------------")
 
-    elif input.lower() == "delete":
+    elif userInput.lower() == "delete":
         delete()
         print("\n--------------------------")
     else:
         print("Invalid input\n--------------------------")
-
-while True:
-    checkInput(input())

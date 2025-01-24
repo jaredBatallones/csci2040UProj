@@ -1,6 +1,3 @@
-
-
-
 def data(Codes):
         print("Please select from the following options: list, specific")
         valid = False
