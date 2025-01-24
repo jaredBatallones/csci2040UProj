@@ -12,7 +12,7 @@ def data(Codes):
                     print(y + ':', obj[y])
                 valid = True
             elif (option == "specific"):
-               print("select SIC code")
+                print("select SIC code")
                 selected_code = input()
                 if selected_code in Codes:
                     item = Codes[selected_code]
