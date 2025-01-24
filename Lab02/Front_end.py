@@ -7,17 +7,19 @@ def data(Codes):
         while valid == False:
             option = input()
             if option == "list":
-                valid = True
+                
                 for x, obj in Codes.items():
                     print(x)
 
                 for y in obj:
                     print(y + ':', obj[y])
-            elif (option == "specific"):
                 valid = True
+            elif (option == "specific"):
+               
                 print("select SIC code")
                 id = input()
                 filter(lambda ID: ID['SIC Code'] == id, Codes)
+                valid = True
             else:
                 print("Error: not an option")
                 
