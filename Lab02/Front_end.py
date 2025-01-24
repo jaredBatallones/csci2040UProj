@@ -6,7 +6,7 @@ def data(Codes):
             if option == "list":
                 
                 for x, obj in Codes.items():
-                    print(x)
+                    print(f"{key})
 
                 for y in obj:
                     print(y + ':', obj[y])
