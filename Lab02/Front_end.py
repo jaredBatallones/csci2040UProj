@@ -1,6 +1,3 @@
-
-
-
 def data(Codes):
         print("Please select from the following options: list, specific")
         valid = False
@@ -9,16 +6,24 @@ def data(Codes):
             if option == "list":
                 
                 for x, obj in Codes.items():
-                    print(x)
+                    print(f"{x})
 
                 for y in obj:
                     print(y + ':', obj[y])
                 valid = True
             elif (option == "specific"):
-               
                 print("select SIC code")
-                id = input()
-                filter(lambda ID: ID['SIC Code'] == id, Codes)
+                selected_code = input()
+                if selected_code in Codes:
+                    item = Codes[selected_code]
+                    print(f"SIC Code: {selected_code}")
+                    print(f"Description: {item['description']}")
+
+                    #previous code
+                #print("select SIC code")
+                #id = input()
+                #filter(lambda ID: ID['SIC Code'] == id, Codes)
+                
                 valid = True
             else:
                 print("Error: not an option")
