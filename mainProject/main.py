@@ -81,3 +81,4 @@ def logged_in_menu(cursor, user_level):
 # Start the whole thing
 if __name__ == "__main__":
     main()
+
