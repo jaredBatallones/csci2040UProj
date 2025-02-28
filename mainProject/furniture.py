@@ -11,6 +11,35 @@ class Furniture:
     # How it looks when printed
     def __str__(self):
         return f"ID: {self.furniture_id}, Type: {self.type}, Colour: {self.colour}, Price: ${self.price:.2f}"
+    
+    # get and set functions
+    def get_furniture_id(self):
+        return self.furniture_id
+    
+    def set_furniture_id(self, furniture_id):
+        self.furniture_id = furniture_id
+        return
+    
+    def get_type(self):
+        return self.type
+    
+    def set_type(self, type):
+        self.type = type
+        return
+    
+    def get_colour(self):
+        return self.colour
+    
+    def set_colour(self, colour):
+        self.colour = colour
+        return
+    
+    def get_price(self):
+        return self.price
+    
+    def set_price(self, price):
+        self.price = price
+        return
 
 # Grab all furniture from the database and turn it into objects
 def get_furniture_list(cursor):
