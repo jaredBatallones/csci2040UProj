@@ -49,6 +49,14 @@ def get_furniture_list(cursor):
         furniture_list.append(Furniture(row[0], row[1], row[2], row[3]))
     return furniture_list
 
+# Sort products by type by alphabetical order
+def sort_furniture_by_type(furniture_list):
+    for i in range(len(furniture_list)):
+        for j in range(i+1,len(furniture_list)):
+            if furniture_list[j].get_type() < furniture_list[i].get_type():
+                furniture_list[i], furniture_list[j] = furniture_list[j], furniture_list[i]
+    return furniture_list
+
 # Sort furnitures by price
 def sort_furniture_by_price(furniture_list):
     for i in range(len(furniture_list)):
