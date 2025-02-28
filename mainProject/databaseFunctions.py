@@ -1,56 +1,64 @@
 import sqlite3
 
+# Connect to the database file
 def loadDatabase():
-    connection = sqlite3.connect("mainProject/data/placeholderData.db")
+    connection = sqlite3.connect("data/placeholderData.db")
     cursor = connection.cursor()
-
-    print("Database connected.")
-
+    print("Hey, database is connected now!")
     return connection, cursor
 
-def initializeDatabase(cursor):
-    command = """CREATE TABLE login (
-    staff_id INTEGER PRIMARY KEY,
-    level INTEGER,
-    username VARCHAR(30),
-    password VARCHAR(30));"""
-
-    cursor.execute(command)
-
-    command = """CREATE TABLE furniture (
-    furniture_id INTEGER PRIMARY KEY,
-    type VARCHAR(30),
-    colour VARCHAR(30),
-    price FLOAT);"""
-
-    cursor.execute(command)
-
-    print("Database Initialized")
-
-def addLogin(connection, cursor, id, level, username, password):
-    cursor.execute("INSERT INTO login VALUES (?, ?, ?, ?)", (id, level, username, password))
-    connection.commit()
-
-    print(f"User {id} added.")
-
-def attemptLogin(cursor, id, password):
-    cursor.execute("SELECT * FROM login")
-
-    users = cursor.fetchall()
-
-    for user in users:
-        if int(user[0]) == int(id) and user[3] == password:
-            return user
-    return 0
+# Set up the tables if they don’t exist yet
+def initializeDatabase(connection, cursor):
+    cursor.execute('''CREATE TABLE IF NOT EXISTS login (
+        staff_id INTEGER PRIMARY KEY,
+        level INTEGER,
+        username VARCHAR(30),
+        password VARCHAR(30))''')
     
-def addFurniture(connection, cursor, id, type, colour, price):
-    cursor.execute("INSERT INTO furniture VALUES (?, ?, ?, ?)", (id, type, colour, price))
+    cursor.execute('''CREATE TABLE IF NOT EXISTS furniture (
+        furniture_id INTEGER PRIMARY KEY,
+        type VARCHAR(30),
+        colour VARCHAR(30),
+        price FLOAT)''')
+    
     connection.commit()
+    print("Database tables are ready to go!")
 
-    print(f"Furniture {id} added.")
+# Add a new user to the login table
+def addLogin(connection, cursor, id, level, username, password):
+    try:
+        cursor.execute("INSERT INTO login VALUES (?, ?, ?, ?)", (id, level, username, password))
+        connection.commit()
+        print(f"Added user {id} - all good!")
+    except sqlite3.IntegrityError:
+        print(f"Oops, user {id} is already in there.")
 
+# Check if login works
+def attemptLogin(cursor, id, password):
+    cursor.execute("SELECT * FROM login WHERE staff_id = ? AND password = ?", (id, password))
+    user = cursor.fetchone()
+    if user:
+        print("Login worked!")
+        return user  # Gives back the whole user row
+    print("Login failed, sorry.")
+    return None
+
+# Add a furniture item
+def addFurniture(connection, cursor, id, type, colour, price):
+    try:
+        cursor.execute("INSERT INTO furniture VALUES (?, ?, ?, ?)", (id, type, colour, price))
+        connection.commit()
+        print(f"Furniture item {id} added!")
+    except sqlite3.IntegrityError:
+        print(f"Whoops, furniture {id} is already there.")
+
+# Get all furniture items
 def returnFurniture(cursor):
     cursor.execute("SELECT * FROM furniture")
+    stuff = cursor.fetchall()
+    return stuff
 
-    furniture = cursor.fetchall()
-    return furniture
+# Close the database when we’re done
+def closeDatabase(connection):
+    connection.close()
+    print("Database closed, see ya!")
