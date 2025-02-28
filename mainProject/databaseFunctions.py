@@ -17,13 +17,21 @@ def initializeDatabase(cursor):
 
     cursor.execute(command)
 
+    command = """CREATE TABLE furniture (
+    furniture_id INTEGER PRIMARY KEY,
+    type VARCHAR(30),
+    colour VARCHAR(30),
+    price FLOAT);"""
+
+    cursor.execute(command)
+
     print("Database Initialized")
 
 def addLogin(connection, cursor, id, level, username, password):
     cursor.execute("INSERT INTO login VALUES (?, ?, ?, ?)", (id, level, username, password))
     connection.commit()
 
-    print(f"User {id} added")
+    print(f"User {id} added.")
 
 def attemptLogin(cursor, id, password):
     cursor.execute("SELECT * FROM login")
@@ -35,3 +43,14 @@ def attemptLogin(cursor, id, password):
             return user
     return 0
     
+def addFurniture(connection, cursor, id, type, colour, price):
+    cursor.execute("INSERT INTO furniture VALUES (?, ?, ?, ?)", (id, type, colour, price))
+    connection.commit()
+
+    print(f"Furniture {id} added.")
+
+def returnFurniture(cursor):
+    cursor.execute("SELECT * FROM furniture")
+
+    furniture = cursor.fetchall()
+    return furniture
