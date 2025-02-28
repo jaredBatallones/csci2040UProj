@@ -1,3 +1,5 @@
+from databasefunction import returnFurniture
+
 # Simple class for furniture items
 class Furniture:
     def __init__(self, furniture_id, type, colour, price):
