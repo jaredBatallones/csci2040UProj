@@ -7,11 +7,19 @@ def main():
     connection, cursor = db.loadDatabase()
     db.initializeDatabase(connection, cursor)
 
-    # Insert initial test data for demonstration purposes – team can modify or remove as needed
-    db.addLogin(connection, cursor, 1, 1, "admin", "pass123")
-    db.addLogin(connection, cursor, 2, 2, "manager", "pass456")
-    db.addFurniture(connection, cursor, 101, "Chair", "Black", 49.99)
-    db.addFurniture(connection, cursor, 102, "Table", "Brown", 99.99)
+    # Check if test data exists before adding – avoids duplicate messages
+    cursor.execute("SELECT COUNT(*) FROM login WHERE staff_id = 1")
+    if cursor.fetchone()[0] == 0:
+        db.addLogin(connection, cursor, 1, 1, "admin", "pass123")
+    cursor.execute("SELECT COUNT(*) FROM login WHERE staff_id = 2")
+    if cursor.fetchone()[0] == 0:
+        db.addLogin(connection, cursor, 2, 2, "manager", "pass456")
+    cursor.execute("SELECT COUNT(*) FROM furniture WHERE furniture_id = 101")
+    if cursor.fetchone()[0] == 0:
+        db.addFurniture(connection, cursor, 101, "Chair", "Black", 49.99)
+    cursor.execute("SELECT COUNT(*) FROM furniture WHERE furniture_id = 102")
+    if cursor.fetchone()[0] == 0:
+        db.addFurniture(connection, cursor, 102, "Table", "Brown", 99.99)
 
     # Continue program execution until the user chooses to exit
     while True:
