@@ -1,5 +1,6 @@
 import databasefunction as db
 import furniture
+import random
 
 # Main function to execute the Furniture Inventory & Management System
 def main():
@@ -170,6 +171,43 @@ def logged_in_menu(cursor, user_level, connection):
         
         else:
             print("Invalid selection. Please choose an option between 1 and 8.")
+# Generate a random list of furniture objects
+def generate_list(List_length):
+    generated_list = []
+    for x in range(List_length):
+        id = random.randrange(1,9999)
+        colour_num = random.randrange(1,5)
+        colour = ""
+        match colour_num:
+            case 1:
+                colour = "White"
+            case 2:
+                colour = "Black"
+            case 3:
+                colour = "Brown"
+            case 4:
+                colour = "Red"
+            case 5:
+                colour = "Grey"
+        type_num = random.randrange(1,5)
+        type = ""
+        match type_num:
+            case 1:
+                type = "Chair"
+            case 2:
+                type = "Table"
+            case 3:
+                type = "Shelf"
+            case 4:
+                type = "Sofa"
+            case 5:
+                type = "Cabinet"
+        
+        base_price = random.randrange(4,20)
+        price = base_price * 5 + .99
+        rand_furniture = furniture.Furniture(id,type,colour,price)
+        generated_list.append(rand_furniture)
+    return generated_list
 
 # Start the program
 if __name__ == "__main__":
