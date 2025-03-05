@@ -1,6 +1,6 @@
 import sqlite3
 
-# Connect to the database file
+# Connect to the database file and return the connection and cursor
 def loadDatabase():
     connection = sqlite3.connect("mainProject/data/placeholderData.db")
     cursor = connection.cursor()
@@ -33,17 +33,17 @@ def addLogin(connection, cursor, id, level, username, password):
     except sqlite3.IntegrityError:
         print(f"Oops, user {id} is already in there.")
 
-# Check if login works
+# Check if login credentials are valid
 def attemptLogin(cursor, id, password):
     cursor.execute("SELECT * FROM login WHERE staff_id = ? AND password = ?", (id, password))
     user = cursor.fetchone()
     if user:
         print("Login worked!")
-        return user  # Gives back the whole user row
+        return user  # Returns the entire user row
     print("Login failed, sorry.")
     return None
 
-# Add a furniture item
+# Add a furniture item to the database
 def addFurniture(connection, cursor, id, type, colour, price):
     try:
         cursor.execute("INSERT INTO furniture VALUES (?, ?, ?, ?)", (id, type, colour, price))
@@ -52,13 +52,13 @@ def addFurniture(connection, cursor, id, type, colour, price):
     except sqlite3.IntegrityError:
         print(f"Whoops, furniture {id} is already there.")
 
-# Get all furniture items
+# Get all furniture items from the database
 def returnFurniture(cursor):
     cursor.execute("SELECT * FROM furniture")
     stuff = cursor.fetchall()
     return stuff
 
-# Close the database when we’re done
+# Close the database connection when done
 def closeDatabase(connection):
     connection.close()
     print("Database closed, see ya!")
