@@ -44,6 +44,7 @@ def attemptLogin(cursor, id, password):
     print("Authentication failed. Please verify your credentials and try again.")
     return None
 
+
 # Add a furniture item to the database
 def addFurniture(connection, cursor, id, type, colour, price):
     try:
