@@ -5,7 +5,7 @@ def loadDatabase():
     # Use a relative path to the database file, assuming it's in mainProject/data/
     connection = sqlite3.connect("data/placeholderData.db")
     cursor = connection.cursor()
-    print("Hey, database is connected now!")
+    print("The database connection has been successfully established.")
     return connection, cursor
 
 # Set up the tables if they don’t exist yet
@@ -23,25 +23,25 @@ def initializeDatabase(connection, cursor):
         price FLOAT)''')
     
     connection.commit()
-    print("Database tables are ready to go!")
+    print("The database tables have been successfully initialized.")
 
 # Add a new user to the login table
 def addLogin(connection, cursor, id, level, username, password):
     try:
         cursor.execute("INSERT INTO login VALUES (?, ?, ?, ?)", (id, level, username, password))
         connection.commit()
-        print(f"Added user {id} - all good!")
+        print(f"User with Staff ID {id} has been successfully added.")
     except sqlite3.IntegrityError:
-        print(f"Oops, user {id} is already in there.")
+        print(f"User with Staff ID {id} already exists in the system.")
 
 # Check if login credentials are valid
 def attemptLogin(cursor, id, password):
     cursor.execute("SELECT * FROM login WHERE staff_id = ? AND password = ?", (id, password))
     user = cursor.fetchone()
     if user:
-        print("Login worked!")
+        print("Authentication successful.")
         return user  # Returns the entire user row
-    print("Login failed, sorry.")
+    print("Authentication failed. Please verify your credentials and try again.")
     return None
 
 # Add a furniture item to the database
@@ -49,17 +49,17 @@ def addFurniture(connection, cursor, id, type, colour, price):
     try:
         cursor.execute("INSERT INTO furniture VALUES (?, ?, ?, ?)", (id, type, colour, price))
         connection.commit()
-        print(f"Furniture item {id} added!")
+        print(f"Furniture item with ID {id} has been successfully added.")
     except sqlite3.IntegrityError:
-        print(f"Whoops, furniture {id} is already there.")
+        print(f"Furniture item with ID {id} already exists in the system.")
 
 # Get all furniture items from the database
 def returnFurniture(cursor):
     cursor.execute("SELECT * FROM furniture")
-    stuff = cursor.fetchall()
-    return stuff
+    items = cursor.fetchall()
+    return items
 
 # Close the database connection when done
 def closeDatabase(connection):
     connection.close()
-    print("Database closed, see ya!")
+    print("The database connection has been closed.")
