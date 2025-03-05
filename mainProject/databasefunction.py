@@ -2,7 +2,8 @@ import sqlite3
 
 # Connect to the database file and return the connection and cursor
 def loadDatabase():
-    connection = sqlite3.connect("mainProject/data/placeholderData.db")
+    # Use a relative path to the database file, assuming it's in mainProject/data/
+    connection = sqlite3.connect("data/placeholderData.db")
     cursor = connection.cursor()
     print("Hey, database is connected now!")
     return connection, cursor
