@@ -56,26 +56,14 @@ def logged_in_menu(cursor, user_level, connection):
         print("2. View a Specific Furniture Item")
         print("3. Sort Furniture Items")  # New feature for sorting by type/price
         print("4. Search Furniture Items")  # New feature for keyword search
-        if user_level >= 1:
+        if user_level >= 1: #Only show options for the user's access level.
             print("5. Add New Furniture Item")  # New feature for adding items
             print("6. Modify Existing Furniture Item")  # New feature for editing items
             print("7. Remove Furniture Item")  # New feature for removing items
-        if user_level >= 2:
+        if user_level >= 2: #Only show options for the user's access level.
             print("8. Add Login")  # New feature for adding users
         print("9. Log Out")
         choice = input("Please select an option (1-9): ")
-
-
-        #print("1. View All Furniture Items")
-        #print("2. View a Specific Furniture Item")
-        #print("3. Log Out")
-        #print("4. Add New Furniture Item")  # New feature for adding items
-        #print("5. Modify Existing Furniture Item")  # New feature for editing items
-        #print("6. Remove Furniture Item")  # New feature for removing items
-        #print("7. Sort Furniture Items")  # New feature for sorting by type/price
-        #print("8. Search Furniture Items")  # New feature for keyword search
-
-
 
         if choice == "1":
             furniture_list = furniture.get_furniture_list(cursor)
@@ -116,6 +104,7 @@ def logged_in_menu(cursor, user_level, connection):
             print("\n=== Sorted List of Furniture Items ===")
             for item in sorted_list:
                 print(item)
+
         # New feature: Search furniture by keyword (type or colour)
         elif choice == "4":
             print("\n=== Search Furniture Items ===")
@@ -175,7 +164,6 @@ def logged_in_menu(cursor, user_level, connection):
                         break
                 if not found_it:
                     print("The specified Furniture Item ID was not found.")
-
             else:
                 print("You do not have the required access level to perform this operation.")
 
