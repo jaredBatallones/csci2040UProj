@@ -39,6 +39,7 @@ def main():
                 logged_in_menu(cursor, user[1], connection)  # Pass connection for database operations
             else:
                 print("Authentication failed. Please verify your Staff ID and Password and try again.")
+                #redundant. either this or the database function should print the error message, not both.
         
         elif choice == "2":
             print("Thank you for using the Furniture Inventory & Management System. Goodbye.")
@@ -53,13 +54,28 @@ def logged_in_menu(cursor, user_level, connection):
         print("\n=== System Options ===")
         print("1. View All Furniture Items")
         print("2. View a Specific Furniture Item")
-        print("3. Log Out")
-        print("4. Add New Furniture Item")  # New feature for adding items
-        print("5. Modify Existing Furniture Item")  # New feature for editing items
-        print("6. Remove Furniture Item")  # New feature for removing items
-        print("7. Sort Furniture Items")  # New feature for sorting by type/price
-        print("8. Search Furniture Items")  # New feature for keyword search
-        choice = input("Please select an option (1-8): ")
+        print("3. Sort Furniture Items")  # New feature for sorting by type/price
+        print("4. Search Furniture Items")  # New feature for keyword search
+        if user_level >= 1:
+            print("5. Add New Furniture Item")  # New feature for adding items
+            print("6. Modify Existing Furniture Item")  # New feature for editing items
+            print("7. Remove Furniture Item")  # New feature for removing items
+        if user_level >= 2:
+            print("8. Add Login")  # New feature for adding users
+        print("9. Log Out")
+        choice = input("Please select an option (1-9): ")
+
+
+        #print("1. View All Furniture Items")
+        #print("2. View a Specific Furniture Item")
+        #print("3. Log Out")
+        #print("4. Add New Furniture Item")  # New feature for adding items
+        #print("5. Modify Existing Furniture Item")  # New feature for editing items
+        #print("6. Remove Furniture Item")  # New feature for removing items
+        #print("7. Sort Furniture Items")  # New feature for sorting by type/price
+        #print("8. Search Furniture Items")  # New feature for keyword search
+
+
 
         if choice == "1":
             furniture_list = furniture.get_furniture_list(cursor)
@@ -83,60 +99,8 @@ def logged_in_menu(cursor, user_level, connection):
             if not found_it:
                 print("The specified Furniture Item ID was not found.")
         
-        elif choice == "3":
-            print("You have been successfully logged out of the system.")
-            break
-        
-        # New feature: Add a furniture item
-        elif choice == "4":
-            print("\n=== Add New Furniture Item ===")
-            furniture_id = input("Please enter the Furniture Item ID: ")
-            type = input("Please enter the Furniture Type (e.g., Chair, Table): ")
-            colour = input("Please enter the Colour (e.g., Black, Brown): ")
-            try:
-                price = float(input("Please enter the Price (e.g., 49.99): "))
-                db.addFurniture(connection, cursor, furniture_id, type, colour, price)
-                print("The new furniture item has been successfully added to the system.")
-            except ValueError:
-                print("Error: The price must be a valid number. Please try again.")
-
-        # New feature: Edit an existing furniture item
-        elif choice == "5":
-            print("\n=== Modify Existing Furniture Item ===")
-            furniture_id = input("Please enter the Furniture Item ID to modify: ")
-            furniture_list = furniture.get_furniture_list(cursor)
-            found_it = False
-            for item in furniture_list:
-                if str(item.furniture_id) == furniture_id:
-                    print(f"Current details: {item}")
-                    new_type = input("Please enter a new Type (press Enter to retain current): ") or item.get_type()
-                    new_colour = input("Please enter a new Colour (press Enter to retain current): ") or item.get_colour()
-                    new_price = input("Please enter a new Price (press Enter to retain current): ") or item.get_price()
-                    if new_price:
-                        try:
-                            new_price = float(new_price)
-                        except ValueError:
-                            print("Error: The price must be a valid number. Retaining current price.")
-                            new_price = item.get_price()
-                    cursor.execute("UPDATE furniture SET type = ?, colour = ?, price = ? WHERE furniture_id = ?", 
-                                  (new_type, new_colour, new_price, furniture_id))
-                    connection.commit()
-                    print("The furniture item has been successfully updated.")
-                    found_it = True
-                    break
-            if not found_it:
-                print("The specified Furniture Item ID was not found.")
-
-        # New feature: Remove a furniture item
-        elif choice == "6":
-            print("\n=== Remove Furniture Item ===")
-            furniture_id = input("Please enter the Furniture Item ID to remove: ")
-            cursor.execute("DELETE FROM furniture WHERE furniture_id = ?", (furniture_id,))
-            connection.commit()
-            print("The furniture item has been removed from the system (if it existed).")
-
         # New feature: Sort furniture by type or price
-        elif choice == "7":
+        elif choice == "3":
             print("\n=== Sort Furniture Items ===")
             print("1. Sort by Type")
             print("2. Sort by Price")
@@ -152,9 +116,8 @@ def logged_in_menu(cursor, user_level, connection):
             print("\n=== Sorted List of Furniture Items ===")
             for item in sorted_list:
                 print(item)
-
         # New feature: Search furniture by keyword (type or colour)
-        elif choice == "8":
+        elif choice == "4":
             print("\n=== Search Furniture Items ===")
             keyword = input("Please enter a keyword (e.g., type or colour): ").lower()
             furniture_list = furniture.get_furniture_list(cursor)
@@ -169,8 +132,84 @@ def logged_in_menu(cursor, user_level, connection):
             else:
                 print("No matching furniture items were found.")
         
+        # New feature: Add a furniture item
+        elif choice == "5":
+            if user_level >= 1:
+                print("\n=== Add New Furniture Item ===")
+                furniture_id = input("Please enter the Furniture Item ID: ")
+                type = input("Please enter the Furniture Type (e.g., Chair, Table): ")
+                colour = input("Please enter the Colour (e.g., Black, Brown): ")
+                try:
+                    price = float(input("Please enter the Price (e.g., 49.99): "))
+                    db.addFurniture(connection, cursor, furniture_id, type, colour, price)
+                    print("The new furniture item has been successfully added to the system.")
+                except ValueError:
+                    print("Error: The price must be a valid number. Please try again.")
+            else:
+                print("You do not have the required access level to perform this operation.")
+
+        # New feature: Edit an existing furniture item
+        elif choice == "6":
+            if user_level >= 1:
+                print("\n=== Modify Existing Furniture Item ===")
+                furniture_id = input("Please enter the Furniture Item ID to modify: ")
+                furniture_list = furniture.get_furniture_list(cursor)
+                found_it = False
+                for item in furniture_list:
+                    if str(item.furniture_id) == furniture_id:
+                        print(f"Current details: {item}")
+                        new_type = input("Please enter a new Type (press Enter to retain current): ") or item.get_type()
+                        new_colour = input("Please enter a new Colour (press Enter to retain current): ") or item.get_colour()
+                        new_price = input("Please enter a new Price (press Enter to retain current): ") or item.get_price()
+                        if new_price:
+                            try:
+                                new_price = float(new_price)
+                            except ValueError:
+                                print("Error: The price must be a valid number. Retaining current price.")
+                                new_price = item.get_price()
+                        cursor.execute("UPDATE furniture SET type = ?, colour = ?, price = ? WHERE furniture_id = ?", 
+                                    (new_type, new_colour, new_price, furniture_id))
+                        connection.commit()
+                        print("The furniture item has been successfully updated.")
+                        found_it = True
+                        break
+                if not found_it:
+                    print("The specified Furniture Item ID was not found.")
+
+            else:
+                print("You do not have the required access level to perform this operation.")
+
+        # New feature: Remove a furniture item
+        elif choice == "7":
+            if user_level >= 1:
+                print("\n=== Remove Furniture Item ===")
+                furniture_id = input("Please enter the Furniture Item ID to remove: ")
+                cursor.execute("DELETE FROM furniture WHERE furniture_id = ?", (furniture_id,))
+                connection.commit()
+                print("The furniture item has been removed from the system (if it existed).")
+            else:
+                print("You do not have the required access level to perform this operation.")
+
+        # New feature: Add a new user login
+        elif choice == "8":
+            if user_level >= 2:
+                print("\n=== Add New Login ===")
+                staff_id = input("Please enter the Staff ID: ")
+                level = input("Please enter the Access Level (0 for viewer,1 for employee or 2 for manager): ")
+                username = input("Please enter the Username: ")
+                password = input("Please enter the Password: ")
+                db.addLogin(connection, cursor, staff_id, level, username, password)
+                print("The new login has been successfully added to the system.")
+            else:
+                print("You do not have the required access level to perform this operation.")
+
+        elif choice == "9":
+            print("You have been successfully logged out of the system.")
+            break
+
         else:
             print("Invalid selection. Please choose an option between 1 and 8.")
+            
 # Generate a random list of furniture objects
 def generate_list(List_length):
     generated_list = []
