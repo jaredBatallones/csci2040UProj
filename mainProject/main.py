@@ -204,7 +204,7 @@ def logged_in_menu(cursor, user_level, connection):
             if user_level <= 1:
                 print("\n=== Add New Login ===")
                 staff_id = input("Please enter the Staff ID: ")
-                level = input("Please enter the Access Level (1 for Admin, 2 for Manager or 3 for Admin): ")
+                level = input("Please enter the Access Level (1 for Admin, 2 for Manager or 3 for Employee): ")
                 username = input("Please enter the Username: ")
                 password = input("Please enter the Password: ")
                 db.addLogin(connection, cursor, staff_id, level, username, password)
