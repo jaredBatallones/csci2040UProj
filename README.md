@@ -2,8 +2,9 @@
 Furniture Store Managment System:
 
 
-Overview
-Furniture Store Managment System is an office application, created to help manage the inventory of a small to medium retail store. It's goal is to document, track, add or remove furniture and other items from a small to medium furniture shop. The program asks for a login and gives varies permissions based on their roles. For example, Admin could edit everything, add or remove entries, view the database. Managers do everything Admin can do, but also add or remove users. Employees can only view the database. Login right now is based on ID only. Right now it is only text-based, in iteration 1. But the final project will be a GUI-based application in future iterations.
+Overview:  
+
+(Furniture Store Managment System) is an office application, created to help manage the inventory of a small to medium retail store. It's goal is to document, track, add or remove furniture and other items from a small to medium furniture shop. The program asks for a login and gives varies permissions based on their roles. For example, Admin could edit everything, add or remove entries, view the database. Managers do everything Admin can do, but also add or remove users. Employees can only view the database. Login right now is based on ID only. Right now it is only text-based, in iteration 1. But the final project will be a GUI-based application in future iterations.
 
 Features
 User Authentication: Secure login for different access levels, right now based on ID, but will add username in the future.
