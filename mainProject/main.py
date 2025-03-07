@@ -1,5 +1,6 @@
 import databasefunction as db
 import furniture
+import login
 import random
 
 # Main function to execute the Furniture Inventory & Management System
@@ -11,16 +12,20 @@ def main():
     # Check if test data exists before adding – avoids duplicate messages
     cursor.execute("SELECT COUNT(*) FROM login WHERE staff_id = 1")
     if cursor.fetchone()[0] == 0:
-        db.addLogin(connection, cursor, 1, 1, "admin", "pass123")
+        db.addLogin(connection, cursor, 1, 1, "testAdmin", "pass123")
     cursor.execute("SELECT COUNT(*) FROM login WHERE staff_id = 2")
     if cursor.fetchone()[0] == 0:
-        db.addLogin(connection, cursor, 2, 2, "manager", "pass456")
+        db.addLogin(connection, cursor, 2, 2, "testManager", "pass456")
+    cursor.execute("SELECT COUNT(*) FROM login WHERE staff_id = 3")
+    if cursor.fetchone()[0] == 0:
+        db.addLogin(connection, cursor, 3, 3, "testEmployee", "pass789")
     cursor.execute("SELECT COUNT(*) FROM furniture WHERE furniture_id = 101")
     if cursor.fetchone()[0] == 0:
         db.addFurniture(connection, cursor, 101, "Chair", "Black", 49.99)
     cursor.execute("SELECT COUNT(*) FROM furniture WHERE furniture_id = 102")
     if cursor.fetchone()[0] == 0:
         db.addFurniture(connection, cursor, 102, "Table", "Brown", 99.99)
+    #populate(connection, cursor, 10)
 
     # Continue program execution until the user chooses to exit
     while True:
@@ -52,19 +57,22 @@ def main():
 def logged_in_menu(cursor, user_level, connection):
     while True:
         print("\n=== System Options ===")
-        print("1. View All Furniture Items")
-        print("2. View a Specific Furniture Item")
-        print("3. Sort Furniture Items")  # New feature for sorting by type/price
-        print("4. Search Furniture Items")  # New feature for keyword search
-        if user_level >= 1: #Only show options for the user's access level.
-            print("5. Add New Furniture Item")  # New feature for adding items
-            print("6. Modify Existing Furniture Item")  # New feature for editing items
-            print("7. Remove Furniture Item")  # New feature for removing items
-        if user_level >= 2: #Only show options for the user's access level.
-            print("8. Add Login")  # New feature for adding users
-        print("9. Log Out")
-        choice = input("Please select an option (1-9): ")
+        print("1.  View All Furniture Items")
+        print("2.  View a Specific Furniture Item")
+        print("3.  Sort Furniture Items")  # New feature for sorting by type/price
+        print("4.  Search Furniture Items")  # New feature for keyword search
+        if user_level <= 2: #Only show options for the user's access level.
+            print("5.  Add New Furniture Item")  # New feature for adding items
+            print("6.  Modify Existing Furniture Item")  # New feature for editing items
+            print("7.  Remove Furniture Item")  # New feature for removing items
+        if user_level <= 1: #Only show options for the user's access level.
+            print("8.  View Logins")
+            print("9.  Add Login")  # New feature for adding users
+            print("10. Delete Login")
+        print("11. Log Out")
+        choice = input("Please select an option (1-11): ")
 
+        #View Furniture List
         if choice == "1":
             furniture_list = furniture.get_furniture_list(cursor)
             if furniture_list:
@@ -74,6 +82,7 @@ def logged_in_menu(cursor, user_level, connection):
             else:
                 print("No furniture items are currently registered in the system.")
         
+        # View Furniture by ID
         elif choice == "2":
             furniture_id = input("Please enter the Furniture Item ID: ")
             furniture_list = furniture.get_furniture_list(cursor)
@@ -87,7 +96,7 @@ def logged_in_menu(cursor, user_level, connection):
             if not found_it:
                 print("The specified Furniture Item ID was not found.")
         
-        # New feature: Sort furniture by type or price
+        # Sort furniture by type or price
         elif choice == "3":
             print("\n=== Sort Furniture Items ===")
             print("1. Sort by Type")
@@ -105,7 +114,7 @@ def logged_in_menu(cursor, user_level, connection):
             for item in sorted_list:
                 print(item)
 
-        # New feature: Search furniture by keyword (type or colour)
+        # Search furniture by keyword (type or colour)
         elif choice == "4":
             print("\n=== Search Furniture Items ===")
             keyword = input("Please enter a keyword (e.g., type or colour): ").lower()
@@ -121,9 +130,9 @@ def logged_in_menu(cursor, user_level, connection):
             else:
                 print("No matching furniture items were found.")
         
-        # New feature: Add a furniture item
+        # Add a furniture item
         elif choice == "5":
-            if user_level >= 1:
+            if user_level <= 2:
                 print("\n=== Add New Furniture Item ===")
                 furniture_id = input("Please enter the Furniture Item ID: ")
                 type = input("Please enter the Furniture Type (e.g., Chair, Table): ")
@@ -137,9 +146,9 @@ def logged_in_menu(cursor, user_level, connection):
             else:
                 print("You do not have the required access level to perform this operation.")
 
-        # New feature: Edit an existing furniture item
+        # Edit an existing furniture item
         elif choice == "6":
-            if user_level >= 1:
+            if user_level <= 2:
                 print("\n=== Modify Existing Furniture Item ===")
                 furniture_id = input("Please enter the Furniture Item ID to modify: ")
                 furniture_list = furniture.get_furniture_list(cursor)
@@ -167,9 +176,9 @@ def logged_in_menu(cursor, user_level, connection):
             else:
                 print("You do not have the required access level to perform this operation.")
 
-        # New feature: Remove a furniture item
+        # Remove a furniture item
         elif choice == "7":
-            if user_level >= 1:
+            if user_level <= 2:
                 print("\n=== Remove Furniture Item ===")
                 furniture_id = input("Please enter the Furniture Item ID to remove: ")
                 cursor.execute("DELETE FROM furniture WHERE furniture_id = ?", (furniture_id,))
@@ -178,12 +187,24 @@ def logged_in_menu(cursor, user_level, connection):
             else:
                 print("You do not have the required access level to perform this operation.")
 
-        # New feature: Add a new user login
-        elif choice == "8":
-            if user_level >= 2:
+        if choice == "8":
+            if user_level <= 1:
+                login_list = login.get_login_list(cursor)
+                if login_list:
+                    print("\n=== List of All Users ===")
+                    for item in login_list:
+                        print(item)
+                else:
+                    print("No furniture items are currently registered in the system.")
+            else:
+                print("You do not have the required access level to perform this operation.")
+
+        # Add a new user login
+        elif choice == "9":
+            if user_level <= 1:
                 print("\n=== Add New Login ===")
                 staff_id = input("Please enter the Staff ID: ")
-                level = input("Please enter the Access Level (0 for viewer,1 for employee or 2 for manager): ")
+                level = input("Please enter the Access Level (1 for Admin, 2 for Manager or 3 for Admin): ")
                 username = input("Please enter the Username: ")
                 password = input("Please enter the Password: ")
                 db.addLogin(connection, cursor, staff_id, level, username, password)
@@ -191,12 +212,22 @@ def logged_in_menu(cursor, user_level, connection):
             else:
                 print("You do not have the required access level to perform this operation.")
 
-        elif choice == "9":
+        elif choice == "10":
+            if user_level <= 1:
+                print("\n=== Remove User ===")
+                staff_id = input("Please enter the Staff ID to remove: ")
+                cursor.execute("DELETE FROM login WHERE staff_id = ?", (staff_id,))
+                connection.commit()
+                print("The user has been removed from the system (if it existed).")
+            else:
+                print("You do not have the required access level to perform this operation.")
+
+        elif choice == "11":
             print("You have been successfully logged out of the system.")
             break
 
         else:
-            print("Invalid selection. Please choose an option between 1 and 8.")
+            print("Invalid selection. Please choose an option between 1 and 11.")
             
 # Generate a random list of furniture objects
 def generate_list(List_length):
@@ -235,6 +266,14 @@ def generate_list(List_length):
         rand_furniture = furniture.Furniture(id,type,colour,price)
         generated_list.append(rand_furniture)
     return generated_list
+
+def populate(connection, cursor, n):
+    rand_items = generate_list(n)
+    for item in rand_items: 
+        print(f"Adding {item}")
+        db.addFurniture(connection, cursor, item.get_furniture_id(), item.get_type(), item.get_colour(), item.get_price())
+        print(f"Test Item {item} Added")
+
 
 # Start the program
 if __name__ == "__main__":

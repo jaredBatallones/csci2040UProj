@@ -1,9 +1,11 @@
 import sqlite3
+import os
 
 # Connect to the database file and return the connection and cursor
 def loadDatabase():
     # Use a relative path to the database file, assuming it's in mainProject/data/
-    connection = sqlite3.connect("data/placeholderData.db")
+    dir = os.path.dirname(__file__)
+    connection = sqlite3.connect(os.path.join(dir, "data/placeholderData.db"))
     cursor = connection.cursor()
     print("The database connection has been successfully established.")
     return connection, cursor
@@ -33,6 +35,11 @@ def addLogin(connection, cursor, id, level, username, password):
         print(f"User with Staff ID {id} has been successfully added.")
     except sqlite3.IntegrityError:
         print(f"User with Staff ID {id} already exists in the system.")
+
+def returnLogin(cursor):
+    cursor.execute("SELECT * FROM login")
+    items = cursor.fetchall()
+    return items
 
 # Check if login credentials are valid
 def attemptLogin(cursor, id, password):
