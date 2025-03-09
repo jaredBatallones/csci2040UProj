@@ -1,15 +1,15 @@
+import tkinter as tk
+from tkinter import ttk, messagebox
 import databasefunction as db
 import furniture
 import login
 import random
 
-# Main function to execute the Furniture Inventory & Management System
 def main():
-    # Establish database connection and cursor
     connection, cursor = db.loadDatabase()
     db.initializeDatabase(connection, cursor)
 
-    # Check if test data exists before adding – avoids duplicate messages
+    # Add test data if it’s not there
     cursor.execute("SELECT COUNT(*) FROM login WHERE staff_id = 1")
     if cursor.fetchone()[0] == 0:
         db.addLogin(connection, cursor, 1, 1, "testAdmin", "pass123")
@@ -25,256 +25,277 @@ def main():
     cursor.execute("SELECT COUNT(*) FROM furniture WHERE furniture_id = 102")
     if cursor.fetchone()[0] == 0:
         db.addFurniture(connection, cursor, 102, "Table", "Brown", 99.99)
-    #populate(connection, cursor, 10)
 
-    # Continue program execution until the user chooses to exit
-    while True:
-        print("\n=== Furniture Inventory & Management System ===")
-        print("1. Authenticate User")
-        print("2. Exit Application")
-        choice = input("Please select an option (1 or 2): ")
+    # Set up the Tkinter window
+    root = tk.Tk()
+    root.title("FIMS - Furniture Inventory & Management System")
 
-        if choice == "1":
-            staff_id = input("Please enter your Staff ID: ")
-            password = input("Please enter your Password: ")
-            user = db.attemptLogin(cursor, staff_id, password)
+    # Login Frame
+    login_frame = ttk.Frame(root)
+    login_frame.pack(pady=20)
+    ttk.Label(login_frame, text="Staff ID:").grid(row=0, column=0, padx=5, pady=5)
+    id_entry = ttk.Entry(login_frame)
+    id_entry.grid(row=0, column=1, padx=5, pady=5)
+    ttk.Label(login_frame, text="Password:").grid(row=1, column=0, padx=5, pady=5)
+    pass_entry = ttk.Entry(login_frame, show="*")
+    pass_entry.grid(row=1, column=1, padx=5, pady=5)
 
-            if user:
-                print(f"Welcome, {user[2]}. You have successfully logged in with access level {user[1]}.")
-                logged_in_menu(cursor, user[1], connection)  # Pass connection for database operations
-            else:
-                print("Authentication failed. Please verify your Staff ID and Password and try again.")
-                #redundant. either this or the database function should print the error message, not both.
-        
-        elif choice == "2":
-            print("Thank you for using the Furniture Inventory & Management System. Goodbye.")
-            break
-        
+    def attempt_login():
+        staff_id = id_entry.get()
+        password = pass_entry.get()
+        user = db.attemptLogin(cursor, staff_id, password)
+        if user:
+            messagebox.showinfo("Login Success", f"Welcome, {user[2]}!")
+            login_frame.pack_forget()
+            show_main_menu(user[1])
         else:
-            print("Invalid selection. Please choose option 1 or 2.")
+            messagebox.showerror("Login Failed", "Wrong ID or password—try again!")
 
-# Menu for authenticated users with expanded functionality
-def logged_in_menu(cursor, user_level, connection):
-    while True:
-        print("\n=== System Options ===")
-        print("1.  View All Furniture Items")
-        print("2.  View a Specific Furniture Item")
-        print("3.  Sort Furniture Items")  # New feature for sorting by type/price
-        print("4.  Search Furniture Items")  # New feature for keyword search
-        if user_level <= 2: #Only show options for the user's access level.
-            print("5.  Add New Furniture Item")  # New feature for adding items
-            print("6.  Modify Existing Furniture Item")  # New feature for editing items
-            print("7.  Remove Furniture Item")  # New feature for removing items
-        if user_level <= 1: #Only show options for the user's access level.
-            print("8.  View Logins")
-            print("9.  Add Login")  # New feature for adding users
-            print("10. Delete Login")
-        print("11. Log Out")
-        choice = input("Please select an option (1-11): ")
+    ttk.Button(login_frame, text="Login", command=attempt_login).grid(row=2, column=1, pady=10)
 
-        #View Furniture List
-        if choice == "1":
-            furniture_list = furniture.get_furniture_list(cursor)
-            if furniture_list:
-                print("\n=== List of All Furniture Items ===")
-                for item in furniture_list:
-                    print(item)
-            else:
-                print("No furniture items are currently registered in the system.")
-        
-        # View Furniture by ID
-        elif choice == "2":
-            furniture_id = input("Please enter the Furniture Item ID: ")
-            furniture_list = furniture.get_furniture_list(cursor)
-            found_it = False
-            for item in furniture_list:
-                if str(item.furniture_id) == furniture_id:
-                    print("\n=== Details of the Specified Furniture Item ===")
-                    print(item)
-                    found_it = True
-                    break
-            if not found_it:
-                print("The specified Furniture Item ID was not found.")
-        
-        # Sort furniture by type or price
-        elif choice == "3":
-            print("\n=== Sort Furniture Items ===")
-            print("1. Sort by Type")
-            print("2. Sort by Price")
-            sort_choice = input("Please select a sorting option (1 or 2): ")
-            furniture_list = furniture.get_furniture_list(cursor)
-            if sort_choice == "1":
-                sorted_list = furniture.sort_furniture_by_type(furniture_list)
-            elif sort_choice == "2":
-                sorted_list = furniture.sort_furniture_by_price(furniture_list)
-            else:
-                print("Invalid selection. Please choose option 1 or 2.")
-                continue
-            print("\n=== Sorted List of Furniture Items ===")
-            for item in sorted_list:
-                print(item)
+    # Main Menu Frame (hidden until login)
+    main_frame = ttk.Frame(root)
 
-        # Search furniture by keyword (type or colour)
-        elif choice == "4":
-            print("\n=== Search Furniture Items ===")
-            keyword = input("Please enter a keyword (e.g., type or colour): ").lower()
-            furniture_list = furniture.get_furniture_list(cursor)
-            matches = []
-            for item in furniture_list:
-                if keyword in item.get_type().lower() or keyword in item.get_colour().lower():
-                    matches.append(item)
-            if matches:
-                print("\n=== Search Results ===")
-                for item in matches:
-                    print(item)
-            else:
-                print("No matching furniture items were found.")
-        
-        # Add a furniture item
-        elif choice == "5":
-            if user_level <= 2:
-                print("\n=== Add New Furniture Item ===")
-                furniture_id = input("Please enter the Furniture Item ID: ")
-                type = input("Please enter the Furniture Type (e.g., Chair, Table): ")
-                colour = input("Please enter the Colour (e.g., Black, Brown): ")
-                try:
-                    price = float(input("Please enter the Price (e.g., 49.99): "))
-                    db.addFurniture(connection, cursor, furniture_id, type, colour, price)
-                    print("The new furniture item has been successfully added to the system.")
-                except ValueError:
-                    print("Error: The price must be a valid number. Please try again.")
-            else:
-                print("You do not have the required access level to perform this operation.")
+    def show_main_menu(user_level):
+        main_frame.pack(pady=20)
+        ttk.Label(main_frame, text="System Options").pack()
+        ttk.Button(main_frame, text="View All Furniture", command=lambda: view_all(cursor)).pack(pady=5)
+        ttk.Button(main_frame, text="View Specific Furniture", command=lambda: view_specific(cursor)).pack(pady=5)
+        ttk.Button(main_frame, text="Sort Furniture", command=lambda: sort_furniture(cursor)).pack(pady=5)
+        ttk.Button(main_frame, text="Search Furniture", command=lambda: search_furniture(cursor)).pack(pady=5)
+        if user_level <= 2:
+            ttk.Button(main_frame, text="Add Furniture", command=lambda: add_furniture(connection, cursor)).pack(pady=5)
+            ttk.Button(main_frame, text="Edit Furniture", command=lambda: edit_furniture(connection, cursor)).pack(pady=5)
+            ttk.Button(main_frame, text="Remove Furniture", command=lambda: remove_furniture(connection, cursor)).pack(pady=5)
+        if user_level <= 1:
+            ttk.Button(main_frame, text="View Logins", command=lambda: view_logins(cursor)).pack(pady=5)
+            ttk.Button(main_frame, text="Add Login", command=lambda: add_login(connection, cursor)).pack(pady=5)
+            ttk.Button(main_frame, text="Delete Login", command=lambda: delete_login(connection, cursor)).pack(pady=5)
+        ttk.Button(main_frame, text="Log Out", command=lambda: log_out(root, login_frame)).pack(pady=5)
 
-        # Edit an existing furniture item
-        elif choice == "6":
-            if user_level <= 2:
-                print("\n=== Modify Existing Furniture Item ===")
-                furniture_id = input("Please enter the Furniture Item ID to modify: ")
-                furniture_list = furniture.get_furniture_list(cursor)
-                found_it = False
-                for item in furniture_list:
-                    if str(item.furniture_id) == furniture_id:
-                        print(f"Current details: {item}")
-                        new_type = input("Please enter a new Type (press Enter to retain current): ") or item.get_type()
-                        new_colour = input("Please enter a new Colour (press Enter to retain current): ") or item.get_colour()
-                        new_price = input("Please enter a new Price (press Enter to retain current): ") or item.get_price()
-                        if new_price:
-                            try:
-                                new_price = float(new_price)
-                            except ValueError:
-                                print("Error: The price must be a valid number. Retaining current price.")
-                                new_price = item.get_price()
-                        cursor.execute("UPDATE furniture SET type = ?, colour = ?, price = ? WHERE furniture_id = ?", 
-                                    (new_type, new_colour, new_price, furniture_id))
-                        connection.commit()
-                        print("The furniture item has been successfully updated.")
-                        found_it = True
-                        break
-                if not found_it:
-                    print("The specified Furniture Item ID was not found.")
-            else:
-                print("You do not have the required access level to perform this operation.")
+    root.mainloop()
 
-        # Remove a furniture item
-        elif choice == "7":
-            if user_level <= 2:
-                print("\n=== Remove Furniture Item ===")
-                furniture_id = input("Please enter the Furniture Item ID to remove: ")
-                cursor.execute("DELETE FROM furniture WHERE furniture_id = ?", (furniture_id,))
-                connection.commit()
-                print("The furniture item has been removed from the system (if it existed).")
-            else:
-                print("You do not have the required access level to perform this operation.")
+# Feature Functions
+def view_all(cursor):
+    furniture_list = furniture.get_furniture_list(cursor)
+    if furniture_list:
+        view_window = tk.Toplevel()
+        view_window.title("All Furniture Items")
+        listbox = tk.Listbox(view_window, width=50)
+        listbox.pack(pady=10)
+        for item in furniture_list:
+            listbox.insert(tk.END, str(item))
+    else:
+        messagebox.showinfo("Info", "No furniture items yet!")
 
-        if choice == "8":
-            if user_level <= 1:
-                login_list = login.get_login_list(cursor)
-                if login_list:
-                    print("\n=== List of All Users ===")
-                    for item in login_list:
-                        print(item)
-                else:
-                    print("No furniture items are currently registered in the system.")
-            else:
-                print("You do not have the required access level to perform this operation.")
+def view_specific(cursor):
+    specific_window = tk.Toplevel()
+    specific_window.title("View Specific Furniture")
+    ttk.Label(specific_window, text="Furniture ID:").pack(pady=5)
+    id_entry = ttk.Entry(specific_window)
+    id_entry.pack(pady=5)
+    def show_item():
+        furniture_id = id_entry.get()
+        furniture_list = furniture.get_furniture_list(cursor)
+        for item in furniture_list:
+            if str(item.furniture_id) == furniture_id:
+                messagebox.showinfo("Furniture Details", str(item))
+                specific_window.destroy()
+                return
+        messagebox.showerror("Error", "That ID doesn’t exist!")
+    ttk.Button(specific_window, text="View", command=show_item).pack(pady=5)
 
-        # Add a new user login
-        elif choice == "9":
-            if user_level <= 1:
-                print("\n=== Add New Login ===")
-                staff_id = input("Please enter the Staff ID: ")
-                level = input("Please enter the Access Level (1 for Admin, 2 for Manager or 3 for Employee): ")
-                username = input("Please enter the Username: ")
-                password = input("Please enter the Password: ")
-                db.addLogin(connection, cursor, staff_id, level, username, password)
-                print("The new login has been successfully added to the system.")
-            else:
-                print("You do not have the required access level to perform this operation.")
-
-        elif choice == "10":
-            if user_level <= 1:
-                print("\n=== Remove User ===")
-                staff_id = input("Please enter the Staff ID to remove: ")
-                cursor.execute("DELETE FROM login WHERE staff_id = ?", (staff_id,))
-                connection.commit()
-                print("The user has been removed from the system (if it existed).")
-            else:
-                print("You do not have the required access level to perform this operation.")
-
-        elif choice == "11":
-            print("You have been successfully logged out of the system.")
-            break
-
+def sort_furniture(cursor):
+    sort_window = tk.Toplevel()
+    sort_window.title("Sort Furniture")
+    ttk.Label(sort_window, text="Sort by:").pack(pady=5)
+    sort_choice = tk.StringVar()
+    ttk.Radiobutton(sort_window, text="Type", variable=sort_choice, value="type").pack()
+    ttk.Radiobutton(sort_window, text="Price", variable=sort_choice, value="price").pack()
+    def sort_and_show():
+        furniture_list = furniture.get_furniture_list(cursor)
+        if sort_choice.get() == "type":
+            sorted_list = furniture.sort_furniture_by_type(furniture_list)
+        elif sort_choice.get() == "price":
+            sorted_list = furniture.sort_furniture_by_price(furniture_list)
         else:
-            print("Invalid selection. Please choose an option between 1 and 11.")
-            
-# Generate a random list of furniture objects
-def generate_list(List_length):
-    generated_list = []
-    for x in range(List_length):
-        id = random.randrange(1,9999)
-        colour_num = random.randrange(1,5)
-        colour = ""
-        match colour_num:
-            case 1:
-                colour = "White"
-            case 2:
-                colour = "Black"
-            case 3:
-                colour = "Brown"
-            case 4:
-                colour = "Red"
-            case 5:
-                colour = "Grey"
-        type_num = random.randrange(1,5)
-        type = ""
-        match type_num:
-            case 1:
-                type = "Chair"
-            case 2:
-                type = "Table"
-            case 3:
-                type = "Shelf"
-            case 4:
-                type = "Sofa"
-            case 5:
-                type = "Cabinet"
-        
-        base_price = random.randrange(4,20)
-        price = base_price * 5 + .99
-        rand_furniture = furniture.Furniture(id,type,colour,price)
-        generated_list.append(rand_furniture)
-    return generated_list
+            messagebox.showerror("Error", "Pick a sort option first!")
+            return
+        view_window = tk.Toplevel()
+        view_window.title("Sorted Furniture")
+        listbox = tk.Listbox(view_window, width=50)
+        listbox.pack(pady=10)
+        for item in sorted_list:
+            listbox.insert(tk.END, str(item))
+    ttk.Button(sort_window, text="Sort", command=sort_and_show).pack(pady=5)
 
-def populate(connection, cursor, n):
-    rand_items = generate_list(n)
-    for item in rand_items: 
-        print(f"Adding {item}")
-        db.addFurniture(connection, cursor, item.get_furniture_id(), item.get_type(), item.get_colour(), item.get_price())
-        print(f"Test Item {item} Added")
+def search_furniture(cursor):
+    search_window = tk.Toplevel()
+    search_window.title("Search Furniture")
+    ttk.Label(search_window, text="Keyword:").pack(pady=5)
+    keyword_entry = ttk.Entry(search_window)
+    keyword_entry.pack(pady=5)
+    def search_and_show():
+        keyword = keyword_entry.get().lower()
+        furniture_list = furniture.get_furniture_list(cursor)
+        matches = [item for item in furniture_list if keyword in item.get_type().lower() or keyword in item.get_colour().lower()]
+        if matches:
+            view_window = tk.Toplevel()
+            view_window.title("Search Results")
+            listbox = tk.Listbox(view_window, width=50)
+            listbox.pack(pady=10)
+            for item in matches:
+                listbox.insert(tk.END, str(item))
+        else:
+            messagebox.showinfo("Info", "Nothing matches that keyword.")
+        search_window.destroy()
+    ttk.Button(search_window, text="Search", command=search_and_show).pack(pady=5)
 
+def add_furniture(connection, cursor):
+    add_window = tk.Toplevel()
+    add_window.title("Add Furniture")
+    ttk.Label(add_window, text="ID:").pack(pady=5)
+    id_entry = ttk.Entry(add_window)
+    id_entry.pack(pady=5)
+    ttk.Label(add_window, text="Type:").pack(pady=5)
+    type_entry = ttk.Entry(add_window)
+    type_entry.pack(pady=5)
+    ttk.Label(add_window, text="Colour:").pack(pady=5)
+    colour_entry = ttk.Entry(add_window)
+    colour_entry.pack(pady=5)
+    ttk.Label(add_window, text="Price:").pack(pady=5)
+    price_entry = ttk.Entry(add_window)
+    price_entry.pack(pady=5)
+    def add_item():
+        try:
+            id = int(id_entry.get())
+            type = type_entry.get()
+            colour = colour_entry.get()
+            price = float(price_entry.get())
+            db.addFurniture(connection, cursor, id, type, colour, price)
+            messagebox.showinfo("Success", "Furniture added!")
+            add_window.destroy()
+        except ValueError:
+            messagebox.showerror("Error", "Check your inputs—ID and Price need to be numbers!")
+    ttk.Button(add_window, text="Add", command=add_item).pack(pady=5)
 
-# Start the program
+def edit_furniture(connection, cursor):
+    edit_window = tk.Toplevel()
+    edit_window.title("Edit Furniture")
+    ttk.Label(edit_window, text="Furniture ID:").pack(pady=5)
+    id_entry = ttk.Entry(edit_window)
+    id_entry.pack(pady=5)
+    def load_item():
+        furniture_id = id_entry.get()
+        furniture_list = furniture.get_furniture_list(cursor)
+        for item in furniture_list:
+            if str(item.furniture_id) == furniture_id:
+                edit_form(item)
+                edit_window.destroy()
+                return
+        messagebox.showerror("Error", "That ID doesn’t exist!")
+    ttk.Button(edit_window, text="Load", command=load_item).pack(pady=5)
+
+def edit_form(item):
+    form_window = tk.Toplevel()
+    form_window.title("Edit Furniture")
+    ttk.Label(form_window, text="Type:").pack(pady=5)
+    type_entry = ttk.Entry(form_window)
+    type_entry.insert(0, item.get_type())
+    type_entry.pack(pady=5)
+    ttk.Label(form_window, text="Colour:").pack(pady=5)
+    colour_entry = ttk.Entry(form_window)
+    colour_entry.insert(0, item.get_colour())
+    colour_entry.pack(pady=5)
+    ttk.Label(form_window, text="Price:").pack(pady=5)
+    price_entry = ttk.Entry(form_window)
+    price_entry.insert(0, str(item.get_price()))
+    price_entry.pack(pady=5)
+    def update_item():
+        new_type = type_entry.get()
+        new_colour = colour_entry.get()
+        try:
+            new_price = float(price_entry.get())
+            cursor.execute("UPDATE furniture SET type = ?, colour = ?, price = ? WHERE furniture_id = ?", 
+                           (new_type, new_colour, new_price, item.furniture_id))
+            connection.commit()
+            messagebox.showinfo("Success", "Furniture updated!")
+            form_window.destroy()
+        except ValueError:
+            messagebox.showerror("Error", "Price needs to be a number!")
+    ttk.Button(form_window, text="Update", command=update_item).pack(pady=5)
+
+def remove_furniture(connection, cursor):
+    remove_window = tk.Toplevel()
+    remove_window.title("Remove Furniture")
+    ttk.Label(remove_window, text="Furniture ID:").pack(pady=5)
+    id_entry = ttk.Entry(remove_window)
+    id_entry.pack(pady=5)
+    def remove_item():
+        furniture_id = id_entry.get()
+        cursor.execute("DELETE FROM furniture WHERE furniture_id = ?", (furniture_id,))
+        connection.commit()
+        messagebox.showinfo("Success", "Furniture removed if it was there!")
+        remove_window.destroy()
+    ttk.Button(remove_window, text="Remove", command=remove_item).pack(pady=5)
+
+def view_logins(cursor):
+    login_list = login.get_login_list(cursor)
+    if login_list:
+        view_window = tk.Toplevel()
+        view_window.title("All Logins")
+        listbox = tk.Listbox(view_window, width=50)
+        listbox.pack(pady=10)
+        for item in login_list:
+            listbox.insert(tk.END, str(item))
+    else:
+        messagebox.showinfo("Info", "No logins yet!")
+
+def add_login(connection, cursor):
+    add_window = tk.Toplevel()
+    add_window.title("Add Login")
+    ttk.Label(add_window, text="Staff ID:").pack(pady=5)
+    id_entry = ttk.Entry(add_window)
+    id_entry.pack(pady=5)
+    ttk.Label(add_window, text="Level (1-3):").pack(pady=5)
+    level_entry = ttk.Entry(add_window)
+    level_entry.pack(pady=5)
+    ttk.Label(add_window, text="Username:").pack(pady=5)
+    username_entry = ttk.Entry(add_window)
+    username_entry.pack(pady=5)
+    ttk.Label(add_window, text="Password:").pack(pady=5)
+    password_entry = ttk.Entry(add_window)
+    password_entry.pack(pady=5)
+    def add_user():
+        try:
+            id = int(id_entry.get())
+            level = int(level_entry.get())
+            username = username_entry.get()
+            password = password_entry.get()
+            db.addLogin(connection, cursor, id, level, username, password)
+            messagebox.showinfo("Success", "Login added!")
+            add_window.destroy()
+        except ValueError:
+            messagebox.showerror("Error", "ID and Level need to be numbers!")
+    ttk.Button(add_window, text="Add", command=add_user).pack(pady=5)
+
+def delete_login(connection, cursor):
+    delete_window = tk.Toplevel()
+    delete_window.title("Delete Login")
+    ttk.Label(delete_window, text="Staff ID:").pack(pady=5)
+    id_entry = ttk.Entry(delete_window)
+    id_entry.pack(pady=5)
+    def delete_user():
+        staff_id = id_entry.get()
+        cursor.execute("DELETE FROM login WHERE staff_id = ?", (staff_id,))
+        connection.commit()
+        messagebox.showinfo("Success", "Login deleted if it existed!")
+        delete_window.destroy()
+    ttk.Button(delete_window, text="Delete", command=delete_user).pack(pady=5)
+
+def log_out(root, login_frame):
+    main_frame.pack_forget()
+    login_frame.pack(pady=20)
+
 if __name__ == "__main__":
     main()
