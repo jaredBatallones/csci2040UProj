@@ -19,16 +19,14 @@ FIMS is a handy tool we created to manage inventory for a small-to-medium furnit
 1. Clone the repo (if needed):
 git clone https://github.com/jaredBatallones/csci2040UProj.git
 
-2. Go to the project folder:mainProject
-
-3. Run the app:
+2. Run the app:
 python main.py
 
-4. Log in with:
+3. Log in with:
 - Admin: Staff ID `1`, Password `pass123`
 - Manager: Staff ID `2`, Password `pass456`
 - Employee: Staff ID `3`, Password `pass789`
-5. Use the GUI buttons (e.g., "View All Furniture" or "Add Furniture") to get started.
+4. Use the GUI buttons (e.g., "View All Furniture" or "Add Furniture") to get started.
 
 ## Quick Look
 - Log in as Admin (ID `1`, `pass123`) to see the full menu.
