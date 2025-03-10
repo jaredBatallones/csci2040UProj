@@ -31,7 +31,7 @@ Welcome to **FIMS**, a sleek and **user-friendly inventory management system** c
 ### 1️⃣ Clone the Repository (if needed)
 Run this command to get the code:  
 ```bash
-git https://github.com/jaredBatallones/csci2040UProj.git
+git clone https://github.com/jaredBatallones/csci2040UProj.git
 ```
 
 ### 2️⃣ Run the App
@@ -116,12 +116,12 @@ mainProject/
 
 ---
 
-## 👥 Team Members 
+## 👥 Team Members
 - Jared nathan Batallones
 - Arian Vares
 - Wei Cui
 - Guillermo Rebolledo
-- Jilun Liang
+- Jilun Liang 
 
 ---
 
@@ -131,7 +131,5 @@ This project is for educational purposes only. No formal license applies, but fe
 ---
 
 ## 🔗 Repository
-- **GitHub**: https://github.com/jaredBatallones/csci2040UProj.git  
+- **GitHub**: https://github.com/jaredBatallones/csci2040UProj.git 
 ```
-
----
