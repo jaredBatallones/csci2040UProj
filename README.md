@@ -26,47 +26,51 @@ FIMS is a user-friendly tool designed to manage inventory for a small-to-medium 
 ## How to Set It Up
 1. **Clone the Repository** (if needed):
    git clone https://github.com/jaredBatallones/csci2040UProj.git
-   
- 2.**Run the App**:
+
+2. **2.Run the App**:
  python main.py
  
  The application will create and initialize the SQLite database (data/placeholderData.db) with default users and furniture items.
  
-3.**Log in with Default Credentials**:
+3. **Log in with Default Credentials**:
 Admin: Staff ID 1, Password pass123
 Manager: Staff ID 2, Password pass456
 Employee: Staff ID 3, Password pass789
 Inventory Manager: Staff ID 4, Password pass101
 Warehouse Employee: Staff ID 5, Password pass202
 
-4.**Use the GUI**:
+4. **Use the GUI**:
 After logging in, you’ll see buttons based on your role (e.g., "View All Furniture," "Add Furniture").
 Click to interact with the inventory—try adding, sorting, or searching for items!
 
 
-**Quick Look**
-1.Log in as Admin (ID 1, Password pass123):
+## **Quick Look**
+**1.Log in as Admin** (ID 1, Password pass123):
 See the full menu, including user management options ("View Logins," "Add Login," "Delete Login").
-2.View Default Furniture:
+
+**2.View Default Furniture**:
 Click "View All Furniture" to see preloaded items:
 ID: 101, Type: Chair, Colour: Black, Price: $49.99
 ID: 102, Type: Table, Colour: Brown, Price: $99.99
-3.Add a New Item (as Manager, ID 2, Password pass456):
+
+**3.Add a New Item (as Manager, ID 2, Password pass456)**:
 Click "Add Furniture" and enter:
 ID: 103, Type: Sofa, Colour: Red, Price: 199.99
 Verify it appears in "View All Furniture."
-4.Sort or Search (as Inventory Manager, ID 4, Password pass101):
+
+**4.Sort or Search (as Inventory Manager, ID 4, Password pass101)**:
 Sort by price or type, or search for "Red" to find the sofa.
-5.View Only (as Warehouse Employee, ID 5, Password pass202):
+
+**5.View Only (as Warehouse Employee, ID 5, Password pass202)**:
 Check stock with "View All Furniture" or "View Specific Furniture" (e.g., ID 101).
 
 
-**Dig Deeper**
+## **Dig Deeper**
 Walkthrough: Check MVP_Walkthrough.md for screenshots of the GUI in action across different roles.
 Details: See MVP_Overview.md for a full summary of implemented user stories and gaps.
 Challenges: Look at Challenges_NextSteps.md for hurdles we faced and future plans.
 
-**What’s Next?**
+## **What’s Next?**
 We’re planning to enhance FIMS with the following features:
 
 Add support for furniture images in the inventory.
@@ -76,7 +80,7 @@ Introduce advanced features like bulk uploads and autocomplete search.
 Improve the UI with better layouts, themes, and confirmation dialogs.
 
 
-**Project Structure**
+## **Project Structure**
 csci2040UProj/
 ├── data/
 │   └── placeholderData.db    # SQLite database (not tracked in Git)
@@ -91,7 +95,7 @@ csci2040UProj/
 ├── .gitignore               # Excludes database & pycache files
 ├── Screenshots
 
-**Team Members**
+## **Team Members**
 
 Jared nathan Batallones
 Arian Vares
