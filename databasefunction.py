@@ -3,7 +3,6 @@ import os
 
 # Connect to the database file and return the connection and cursor
 def loadDatabase():
-    # Use a relative path to the database file, assuming it's in mainProject/data/
     dir = os.path.dirname(__file__)
     connection = sqlite3.connect(os.path.join(dir, "data/placeholderData.db"))
     cursor = connection.cursor()
@@ -36,11 +35,6 @@ def addLogin(connection, cursor, id, level, username, password):
     except sqlite3.IntegrityError:
         print(f"User with Staff ID {id} already exists in the system.")
 
-def returnLogin(cursor):
-    cursor.execute("SELECT * FROM login")
-    items = cursor.fetchall()
-    return items
-
 # Check if login credentials are valid
 def attemptLogin(cursor, id, password):
     cursor.execute("SELECT * FROM login WHERE staff_id = ? AND password = ?", (id, password))
@@ -50,22 +44,6 @@ def attemptLogin(cursor, id, password):
         return user  # Returns the entire user row
     print("Authentication failed. Please verify your credentials and try again.")
     return None
-
-
-# Add a furniture item to the database
-def addFurniture(connection, cursor, id, type, colour, price):
-    try:
-        cursor.execute("INSERT INTO furniture VALUES (?, ?, ?, ?)", (id, type, colour, price))
-        connection.commit()
-        print(f"Furniture item with ID {id} has been successfully added.")
-    except sqlite3.IntegrityError:
-        print(f"Furniture item with ID {id} already exists in the system.")
-
-# Get all furniture items from the database
-def returnFurniture(cursor):
-    cursor.execute("SELECT * FROM furniture")
-    items = cursor.fetchall()
-    return items
 
 # Close the database connection when done
 def closeDatabase(connection):
