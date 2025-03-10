@@ -1,4 +1,4 @@
-```markdown
+
 # 🛋️ Furniture Inventory & Management System (FIMS) 🎉
 
 ## 🌟 Overview
@@ -132,4 +132,3 @@ This project is for educational purposes only. No formal license applies, but fe
 
 ## 🔗 Repository
 - **GitHub**: https://github.com/jaredBatallones/csci2040UProj.git 
-```
