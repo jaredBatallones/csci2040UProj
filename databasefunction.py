@@ -2,9 +2,12 @@ import sqlite3
 import os
 
 # Connect to the database file and return the connection and cursor
-def loadDatabase():
+def loadDatabase(test=False):
     dir = os.path.dirname(__file__)
-    connection = sqlite3.connect(os.path.join(dir, "data/placeholderData.db"))
+    if test == False:
+        connection = sqlite3.connect(os.path.join(dir, "data/placeholderData.db"))
+    else:
+        connection = sqlite3.connect(os.path.join(dir, "data/placeholderTestData.db"))
     cursor = connection.cursor()
     print("The database connection has been successfully established.")
     return connection, cursor

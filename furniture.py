@@ -10,7 +10,14 @@ class Furniture:
 
     # String representation for printing furniture details
     def __str__(self):
-        return f"ID: {self.furniture_id}, Type: {self.type}, Colour: {self.colour}, Price: ${self.price:.2f}"
+        return f"ID: {self.furniture_id}, Type: {self.type}, Colour: {self.colour}, Price: ${float(self.price):.2f}"
+    
+    def __eq__(self, other):
+        #print(f"Comparing {self} to {other}")
+        if str(self) == str(other):
+            return True
+        else:
+            return False
 
     # Getter and setter methods for furniture attributes – useful for modifications
     def get_furniture_id(self):
