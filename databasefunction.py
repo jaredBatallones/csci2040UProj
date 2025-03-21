@@ -1,13 +1,22 @@
 import sqlite3
 import os
+import sys
 
-# Connect to the database file and return the connection and cursor
 def loadDatabase(test=False):
-    dir = os.path.dirname(__file__)
-    if test == False:
-        connection = sqlite3.connect(os.path.join(dir, "data/placeholderData.db"))
+    # Get the executable's directory or script directory
+    if getattr(sys, 'frozen', False):
+        dir = os.path.dirname(sys.executable)
     else:
-        connection = sqlite3.connect(os.path.join(dir, "data/placeholderTestData.db"))
+        dir = os.path.dirname(__file__)
+    
+    # Point to external data folder
+    if test == False:
+        db_filename = "placeholderData.db"
+    else:
+        db_filename =  "placeholderTestData.db"
+    db_path = os.path.join(dir, "data", db_filename)
+    
+    connection = sqlite3.connect(db_path)
     cursor = connection.cursor()
     print("The database connection has been successfully established.")
     return connection, cursor
