@@ -66,7 +66,41 @@ class DatabaseTests(unittest.TestCase):
         database_furniture_list = furniture.get_furniture_list(self.cursor)
 
         self.assertEqual(database_furniture_list, test_furniture_list, "Furniture removal unsuccessful")
+        db.closeDatabase(self.connection) 
+    def test_6_add_furniture_with_aisle_size(self):
+        #add a furniture with an aisle, TDD should fail for now
+        test_furniture = furniture.Furniture(5, "Lamp", "Silver", "45.00", "B2", "Small")
+        test_furniture_list = [test_furniture]
+        furniture.add_furniture(self.connection, self.cursor, test_furniture.get_furniture_id(), test_furniture.get_type(), test_furniture.get_colour(), test_furniture.get_price())
+        database_furniture_list = furniture.get_furniture_list(self.cursor)
+        self.assertEqual(database_furniture_list[0], test_furniture_list[0], "Furniture addition unsuccessful")
         db.closeDatabase(self.connection)
+        
+    def test_7_sort_by_aisle(self):
+        test_furniture_1 = furniture.Furniture(1, "Couch", "Brown", "99.99")
+        test_furniture_2 = furniture.Furniture(2, "Chair", "Brown", "100.99")
+        test_furniture_3 = furniture.Furniture(3, "Couch", "White", "80.99")
+
+        test_furniture_list = [test_furniture_3, test_furniture_1, test_furniture_2]
+        database_furniture_list = furniture.sort_furniture_by_aisle(furniture.get_furniture_list(self.cursor))
+
+        for i in range(len(test_furniture_list)):
+            self.assertEqual(database_furniture_list[i], test_furniture_list[i], "Furniture sort by aisle unsuccessful")
+        db.closeDatabase(self.connection)
+    def test_8_sort_by_size(self):
+        test_furniture_1 = furniture.Furniture(1, "Couch", "Brown", "99.99")
+        test_furniture_2 = furniture.Furniture(2, "Chair", "Brown", "100.99")
+        test_furniture_3 = furniture.Furniture(3, "Couch", "White", "80.99")
+
+        test_furniture_list = [test_furniture_3, test_furniture_1, test_furniture_2]
+        database_furniture_list = furniture.sort_furniture_by_size(furniture.get_furniture_list(self.cursor))
+
+        for i in range(len(test_furniture_list)):
+            self.assertEqual(database_furniture_list[i], test_furniture_list[i], "Furniture sort by aisle unsuccessful")
+        db.closeDatabase(self.connection)
+
+
+
 
 if __name__ == '__main__':
     unittest.main()
