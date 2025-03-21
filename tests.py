@@ -67,6 +67,30 @@ class DatabaseTests(unittest.TestCase):
 
         self.assertEqual(database_furniture_list, test_furniture_list, "Furniture removal unsuccessful")
         db.closeDatabase(self.connection)
+    
+    def test_6_add_login(self):
+        test_login_1 = login.Login(1, 3, "testEmployee", "superSecure3")
+        login.add_login(self.connection, self.cursor, test_login_1.get_staff_id(), test_login_1.get_level(), test_login_1.get_username(), test_login_1.get_password())
+
+        test_login_2 = login.Login(2, 5, "testWarehouse", "superSecure5")
+        login.add_login(self.connection, self.cursor, test_login_2.get_staff_id(), test_login_2.get_level(), test_login_2.get_username(), test_login_2.get_password())
+
+        test_login_list = [test_login_1, test_login_2]
+        database_login_list = login.get_login_list(self.cursor)
+
+        for i in range(len(test_login_list)):
+            self.assertEqual(database_login_list[i], test_login_list[i], "Login addition unsuccessful")
+        db.closeDatabase(self.connection)
+
+    def test_7_remove_login(self):
+        login.remove_login(self.connection, self.cursor, 1)
+        login.remove_login(self.connection, self.cursor, 2)
+
+        test_login_list = []
+        database_login_list = login.get_login_list(self.cursor)
+
+        self.assertEqual(database_login_list, test_login_list, "Login removal unsuccessful")
+        db.closeDatabase(self.connection)
 
 if __name__ == '__main__':
     unittest.main()

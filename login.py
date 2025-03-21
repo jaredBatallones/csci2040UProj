@@ -12,6 +12,13 @@ class Login:
         levels = {1: 'admin', 2: 'manager', 3: 'employee', 4: 'inventory_manager', 5: 'warehouse_employee'}
         return f"ID: {self.staff_id}, Username: {self.username}, Password: {self.password}, Access Level: {levels.get(self.level, 'unknown')}"
     
+    def __eq__(self, other):
+        #print(f"Comparing {self} to {other}")
+        if str(self) == str(other):
+            return True
+        else:
+            return False
+    
     def get_staff_id(self):
         return self.staff_id
     
@@ -47,6 +54,22 @@ def get_login_list(cursor):
     for row in raw_stuff:
         login_list.append(Login(row[0], row[1], row[2], row[3]))
     return login_list
+
+def add_login(connection, cursor, staff_id, level, username, password):
+    try:
+        cursor.execute("INSERT INTO login VALUES (?, ?, ?, ?)", (staff_id, level, username, password))
+        connection.commit()
+        return True
+    except sqlite3.IntegrityError:
+        return False
+    
+def remove_login(connection, cursor, staff_id):
+    try:
+        cursor.execute("DELETE FROM login WHERE staff_id = ?", (staff_id,))
+        connection.commit()
+        return True
+    except sqlite3.Error:
+        return False
 
 def initialize_users(connection, cursor):
     # Clear the existing login table to ensure fresh data
