@@ -57,7 +57,18 @@ class DatabaseTests(unittest.TestCase):
             self.assertEqual(database_furniture_list[i], test_furniture_list[i], "Furniture modification unsuccessful")
         db.closeDatabase(self.connection)
 
-    def test_5_remove_furniture(self):
+    def test_5_search_keyword(self):
+        keywords = ["minimalist", "garden", "soft"]
+        test_furniture_1 = furniture.Furniture(1, "Couch", "Red", "99.99")
+        test_furniture_2 = furniture.Furniture(2, "Chair", "Brown", "100.99")
+        test_furniture_3 = furniture.Furniture(3, "Couch", "White", "80.99")
+        test_furniture_list = [test_furniture_1, test_furniture_2, test_furniture_3]
+    
+        for i in range(len(keywords)):
+            database_furniture_list = furniture.get_furniture_list_by_keyword(self.cursor, keywords[i])
+            self.assertEqual(database_furniture_list[0], test_furniture_list[i], "Furniture keyword search unsuccessful")
+
+    def test_6_remove_furniture(self):
         furniture.remove_furniture(self.connection, self.cursor, 1)
         furniture.remove_furniture(self.connection, self.cursor, 2)
         furniture.remove_furniture(self.connection, self.cursor, 3)
@@ -68,7 +79,7 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(database_furniture_list, test_furniture_list, "Furniture removal unsuccessful")
         db.closeDatabase(self.connection)
     
-    def test_6_add_login(self):
+    def test_7_add_login(self):
         test_login_1 = login.Login(1, 3, "testEmployee", "superSecure3")
         login.add_login(self.connection, self.cursor, test_login_1.get_staff_id(), test_login_1.get_level(), test_login_1.get_username(), test_login_1.get_password())
 
@@ -82,7 +93,7 @@ class DatabaseTests(unittest.TestCase):
             self.assertEqual(database_login_list[i], test_login_list[i], "Login addition unsuccessful")
         db.closeDatabase(self.connection)
 
-    def test_7_remove_login(self):
+    def test_8_remove_login(self):
         login.remove_login(self.connection, self.cursor, 1)
         login.remove_login(self.connection, self.cursor, 2)
 
