@@ -85,4 +85,19 @@ class DatabaseTests(unittest.TestCase):
         result = furniture.add_furniture(self.connection, self.cursor, 1, "Table", "Black", 150.00)
         self.assertFalse(result, "Adding duplicate ID should fail")
         db.closeDatabase(self.connection)
-    
+        
+    def test_IT_01_TB_login_to_database(self):
+      user = db.attemptLogin(self.cursor, "1", "pass123")
+      self.assertIsNotNone(user, "Login to database integration failed")
+      login_list = login.get_login_list(self.cursor)
+      expected_login = login.Login(1, 1, "testAdmin", "pass123")
+      self.assertIn(expected_login, login_list, "Login data not found in database")
+      db.closeDatabase(self.connection)
+
+    def test_IT_02_CB_gui_to_database(self):
+      # Simulate GUI adding furniture (mocking GUI input)
+      furniture.add_furniture(self.connection, self.cursor, 3, "Table", "Black", 150.00)
+      database_furniture_list = furniture.get_furniture_list(self.cursor)
+      expected_furniture = furniture.Furniture(3, "Table", "Black", 150.00)
+      self.assertIn(expected_furniture, database_furniture_list, "GUI to database integration failed")
+      db.closeDatabase(self.connection)
