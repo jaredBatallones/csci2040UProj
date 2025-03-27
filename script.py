@@ -1,8 +1,23 @@
-import PyInstaller.__main__
+import subprocess
+import sys
 import os
 import shutil
 
-def script():
+def ensure_pyinstaller():
+    try:
+        import PyInstaller
+    except ImportError:
+        print("PyInstaller not found. Installing...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "pyinstaller"])
+        print("PyInstaller installed successfully!")
+
+def build():
+    # Ensure PyInstaller is installed
+    ensure_pyinstaller()
+    
+    # Now we can safely import PyInstaller
+    import PyInstaller.__main__
+    
     # Clean and create dist directory
     if os.path.exists('dist'):
         shutil.rmtree('dist')
@@ -10,13 +25,12 @@ def script():
     
     # Build the executable
     PyInstaller.__main__.run([
-        'Furniture Inventory & Management System.py',
+        'main.py',
         '--onefile',
         '--windowed',
-        '--clean'
+        '--clean',
+        '--name','Furniture Inventory & Management System.exe',
     ])
-    
-    # Create data directory and copy database
     os.makedirs(os.path.join('dist', 'data'), exist_ok=True)
     shutil.copy2(
         os.path.join('data', 'placeholderData.db'),
@@ -25,10 +39,9 @@ def script():
     if os.path.exists('build'):
         shutil.rmtree('build')
 
-
 if __name__ == '__main__':
-    script()
+    build()
 
 #Documention on how to build the application
 #step one: install pyinstaller using pip install pyinstaller
-#step two: run the build.py file. This will create a dist folder with the executable file and the database file.
+#step two: run the script.py file. This will create a dist folder with the executable file and the database file.
