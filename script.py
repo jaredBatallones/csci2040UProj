@@ -10,7 +10,7 @@ def script():
     
     # Build the executable
     PyInstaller.__main__.run([
-        'main.py',
+        'Furniture Inventory & Management System.py',
         '--onefile',
         '--windowed',
         '--clean'
