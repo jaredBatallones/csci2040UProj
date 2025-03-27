@@ -43,5 +43,4 @@ if __name__ == '__main__':
     build()
 
 #Documention on how to build the application
-#step one: install pyinstaller using pip install pyinstaller
-#step two: run the script.py file. This will create a dist folder with the executable file and the database file.
+#step one: run the script.py file. This will create a dist folder with the executable file and the database file.
