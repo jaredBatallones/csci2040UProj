@@ -3,25 +3,32 @@ from tkinter import ttk, messagebox
 import databasefunction as db
 import furniture
 import login
+from PIL import Image, ImageTk
 
 def main():
     # Set up the database
-    connection, cursor = db.loadDatabase()
+    # test injection ( ' OR '1'='1 )
+    #' OR '1'='1
+
+    #Chair'; DROP TABLE furniture;--
+
+    #'); UPDATE login SET level=1 WHERE staff_id=2;--
+    connection, cursor = db.loadDatabase(test=True)
     db.initializeDatabase(connection, cursor)
     login.initialize_users(connection, cursor)
 
-    # Add test furniture if not present
+    # Add test furniture if not present (with new size and aisle fields)
     cursor.execute("SELECT COUNT(*) FROM furniture WHERE furniture_id = 101")
     if cursor.fetchone()[0] == 0:
-        furniture.add_furniture(connection, cursor, 101, "Chair", "Black", 49.99)
+        furniture.add_furniture(connection, cursor, 101, "Chair", "Black", 49.99, "Medium", "A3")
     cursor.execute("SELECT COUNT(*) FROM furniture WHERE furniture_id = 102")
     if cursor.fetchone()[0] == 0:
-        furniture.add_furniture(connection, cursor, 102, "Table", "Brown", 99.99)
+        furniture.add_furniture(connection, cursor, 102, "Table", "Brown", 99.99, "Large", "B1")
 
     # Set up the Tkinter window
     root = tk.Tk()
     root.title("FIMS - Furniture Inventory & Management System")
-    root.geometry("400x500")
+    root.geometry("400x600")  # Adjusted for extra fields
 
     # Login Frame
     login_frame = ttk.Frame(root)
@@ -48,42 +55,76 @@ def main():
 
     # Main Menu Frame (recreated for each login)
     def show_main_menu(user_level):
-        # Destroy and recreate main_frame to clear previous buttons
+        # Remove any previous main menu frames (using tk.Frame)
         for widget in root.winfo_children():
-            if isinstance(widget, ttk.Frame) and widget != login_frame:
+            if isinstance(widget, tk.Frame) and widget != login_frame:
                 widget.destroy()
-        main_frame = ttk.Frame(root)
-        main_frame.pack(pady=20)
-        ttk.Label(main_frame, text=f"Access Level: {login.Login(0, user_level, '', '').__str__().split('Level: ')[1]}").pack()
-        # Buttons for all users
-        ttk.Button(main_frame, text="View All Furniture", command=lambda: view_all(cursor)).pack(pady=5)
-        # Buttons for Employee (Level 3), Inventory Manager (Level 4), and above
+        
+        # Create the main frame with a neutral background (you can adjust as needed)
+        main_frame = tk.Frame(root, bg="#ADD8E6")
+        main_frame.pack(pady=20, fill="both", expand=True)
+        
+        # Top label showing Access Level spanning all three columns
+        access_label = tk.Label(main_frame,
+                                text=f"Access Level: {login.Login(0, user_level, '', '').__str__().split('Level: ')[1]}",
+                                bg="#ADD8E6", fg="black")
+        access_label.grid(row=0, column=0, columnspan=3, pady=5)
+        
+        # Create subframes for each column with desired background colors:
+        # Column 1: Orange (#FFA500)
+        col1 = tk.Frame(main_frame, bg="#FFA500")
+        col1.grid(row=1, column=0, padx=10, sticky="n")
+        
+        # Column 2: White (#FFFFFF)
+        col2 = tk.Frame(main_frame, bg="#FFFFFF")
+        col2.grid(row=1, column=1, padx=10, sticky="n")
+        
+        # Column 3: Light Green (#90EE90)
+        col3 = tk.Frame(main_frame, bg="#90EE90")
+        col3.grid(row=1, column=2, padx=10, sticky="n")
+        
+        # Column 1: Common buttons (colored orange)
+        tk.Button(col1, text="View All Furniture", command=lambda: view_all(cursor),
+                  bg="#FFA500", fg="black").pack(pady=5)
         if user_level <= 4:
-            ttk.Button(main_frame, text="Search Furniture", command=lambda: search_furniture(cursor)).pack(pady=5)
-        # Buttons for Inventory Manager (Level 4) and above
-        if user_level <= 4:
-            ttk.Button(main_frame, text="Sort Furniture", command=lambda: sort_furniture(cursor)).pack(pady=5)
-        # Buttons for Manager (Level 2) and above
+            tk.Button(col1, text="Search Furniture", command=lambda: search_furniture(cursor),
+                      bg="#FFA500", fg="black").pack(pady=5)
+            tk.Button(col1, text="Sort Furniture", command=lambda: sort_furniture(cursor),
+                      bg="#FFA500", fg="black").pack(pady=5)
         if user_level <= 2:
-            ttk.Button(main_frame, text="Add Furniture", command=lambda: add_furniture(connection, cursor)).pack(pady=5)
-            ttk.Button(main_frame, text="Edit Furniture", command=lambda: edit_furniture(connection, cursor)).pack(pady=5)
-            ttk.Button(main_frame, text="Remove Furniture", command=lambda: remove_furniture(connection, cursor)).pack(pady=5)
-        # Buttons for Admin (Level 1) only
+            tk.Button(col1, text="Add Furniture", command=lambda: add_furniture(connection, cursor),
+                      bg="#FFA500", fg="black").pack(pady=5)
+            tk.Button(col1, text="Edit Furniture", command=lambda: edit_furniture(connection, cursor),
+                      bg="#FFA500", fg="black").pack(pady=5)
+            tk.Button(col1, text="Remove Furniture", command=lambda: remove_furniture(connection, cursor),
+                      bg="#FFA500", fg="black").pack(pady=5)
+        
+        # Column 2: Admin-only login management buttons (colored white)
         if user_level == 1:
-            ttk.Button(main_frame, text="View Logins", command=lambda: view_logins(cursor)).pack(pady=5)
-            ttk.Button(main_frame, text="Add Login", command=lambda: add_login(connection, cursor)).pack(pady=5)
-            ttk.Button(main_frame, text="Delete Login", command=lambda: delete_login(connection, cursor)).pack(pady=5)
-        # Buttons for all users
-        ttk.Button(main_frame, text="View Specific Furniture", command=lambda: view_specific(cursor)).pack(pady=5)
-        ttk.Button(main_frame, text="Log Out", command=lambda: log_out(root, login_frame, main_frame)).pack(pady=5)
+            tk.Button(col2, text="View Logins", command=lambda: view_logins(cursor),
+                      bg="#FFFFFF", fg="black").pack(pady=5)
+            tk.Button(col2, text="Add Login", command=lambda: add_login(connection, cursor),
+                      bg="#FFFFFF", fg="black").pack(pady=5)
+            tk.Button(col2, text="Delete Login", command=lambda: delete_login(connection, cursor),
+                      bg="#FFFFFF", fg="black").pack(pady=5)
+        
+        # Column 3: Picture-based search and specific view (colored light green)
+        tk.Button(col3, text="Search by Picture", command=search_by_picture,
+                  bg="#90EE90", fg="black").pack(pady=5)
+        tk.Button(col3, text="View Specific Furniture", command=lambda: view_specific(cursor),
+                  bg="#90EE90", fg="black").pack(pady=5)
+        
+        # Log Out button across the bottom spanning all columns, colored red
+        tk.Button(main_frame, text="Log Out", command=lambda: log_out(root, login_frame, main_frame),
+                  bg="#FF0000", fg="white").grid(row=2, column=0, columnspan=3, pady=10)
 
-    # Feature Functions
+
     def view_all(cursor):
         furniture_list = furniture.get_furniture_list(cursor)
         if furniture_list:
             view_window = tk.Toplevel()
             view_window.title("All Furniture Items")
-            listbox = tk.Listbox(view_window, width=50)
+            listbox = tk.Listbox(view_window, width=70)
             listbox.pack(pady=10)
             for item in furniture_list:
                 listbox.insert(tk.END, str(item))
@@ -125,7 +166,7 @@ def main():
                 return
             view_window = tk.Toplevel()
             view_window.title("Sorted Furniture")
-            listbox = tk.Listbox(view_window, width=50)
+            listbox = tk.Listbox(view_window, width=70)
             listbox.pack(pady=10)
             for item in sorted_list:
                 listbox.insert(tk.END, str(item))
@@ -143,7 +184,7 @@ def main():
             if matches:
                 view_window = tk.Toplevel()
                 view_window.title("Search Results")
-                listbox = tk.Listbox(view_window, width=50)
+                listbox = tk.Listbox(view_window, width=70)
                 listbox.pack(pady=10)
                 for item in matches:
                     listbox.insert(tk.END, str(item))
@@ -151,6 +192,48 @@ def main():
                 messagebox.showinfo("Info", "Nothing matches that keyword.")
             search_window.destroy()
         ttk.Button(search_window, text="Search", command=search_and_show).pack(pady=5)
+    def search_by_picture():
+        # Create a new window for picture-based search
+        pic_window = tk.Toplevel(root)
+        pic_window.title("Search by Picture")
+        pic_window.geometry("400x200")
+        
+        # Load images using Pillow and resize them (adjust the size as needed)
+        chair_img = Image.open("chair.png").resize((100, 100))
+        table_img = Image.open("table.png").resize((100, 100))
+        sofa_img  = Image.open("sofa.png").resize((100, 100))
+        
+        # Convert images to Tkinter PhotoImage objects
+        chair_photo = ImageTk.PhotoImage(chair_img)
+        table_photo = ImageTk.PhotoImage(table_img)
+        sofa_photo  = ImageTk.PhotoImage(sofa_img)
+        
+        # Create image buttons for each furniture type.
+        btn_chair = tk.Button(pic_window, image=chair_photo, command=lambda: perform_search("chair"))
+        btn_chair.image = chair_photo  # keep a reference
+        btn_chair.pack(side=tk.LEFT, padx=10, pady=10)
+        
+        btn_table = tk.Button(pic_window, image=table_photo, command=lambda: perform_search("table"))
+        btn_table.image = table_photo
+        btn_table.pack(side=tk.LEFT, padx=10, pady=10)
+        
+        btn_sofa = tk.Button(pic_window, image=sofa_photo, command=lambda: perform_search("sofa"))
+        btn_sofa.image = sofa_photo
+        btn_sofa.pack(side=tk.LEFT, padx=10, pady=10)
+    def perform_search(keyword):
+        # Use your furniture module's search function to find matches based on the keyword
+        matches = furniture.search_furniture(cursor, keyword)
+        if matches:
+            results_window = tk.Toplevel(root)
+            results_window.title(f"Search Results for {keyword}")
+            listbox = tk.Listbox(results_window, width=70)
+            listbox.pack(pady=10)
+            for item in matches:
+                listbox.insert(tk.END, str(item))
+        else:
+            messagebox.showinfo("Search", f"No results found for {keyword}")
+        
+
 
     def add_furniture(connection, cursor):
         add_window = tk.Toplevel()
@@ -167,13 +250,22 @@ def main():
         ttk.Label(add_window, text="Price:").pack(pady=5)
         price_entry = ttk.Entry(add_window)
         price_entry.pack(pady=5)
+        # New fields for size and aisle
+        ttk.Label(add_window, text="Size:").pack(pady=5)
+        size_entry = ttk.Entry(add_window)
+        size_entry.pack(pady=5)
+        ttk.Label(add_window, text="Aisle:").pack(pady=5)
+        aisle_entry = ttk.Entry(add_window)
+        aisle_entry.pack(pady=5)
         def add_item():
             try:
-                id = int(id_entry.get())
-                type = type_entry.get()
-                colour = colour_entry.get()
+                id_val = int(id_entry.get())
+                type_val = type_entry.get()
+                colour_val = colour_entry.get()
                 price = float(price_entry.get())
-                if furniture.add_furniture(connection, cursor, id, type, colour, price):
+                size_val = size_entry.get()
+                aisle_val = aisle_entry.get()
+                if furniture.add_furniture(connection, cursor, id_val, type_val, colour_val, price, size_val, aisle_val):
                     messagebox.showinfo("Success", "Furniture added!")
                     add_window.destroy()
                 else:
@@ -214,12 +306,23 @@ def main():
         price_entry = ttk.Entry(form_window)
         price_entry.insert(0, str(item.get_price()))
         price_entry.pack(pady=5)
+        # New fields for size and aisle in the edit form
+        ttk.Label(form_window, text="Size:").pack(pady=5)
+        size_entry = ttk.Entry(form_window)
+        size_entry.insert(0, item.size if hasattr(item, 'size') else "")
+        size_entry.pack(pady=5)
+        ttk.Label(form_window, text="Aisle:").pack(pady=5)
+        aisle_entry = ttk.Entry(form_window)
+        aisle_entry.insert(0, item.aisle if hasattr(item, 'aisle') else "")
+        aisle_entry.pack(pady=5)
         def update_item():
             new_type = type_entry.get()
             new_colour = colour_entry.get()
             try:
                 new_price = float(price_entry.get())
-                if furniture.update_furniture(connection, cursor, item.furniture_id, new_type, new_colour, new_price):
+                new_size = size_entry.get()
+                new_aisle = aisle_entry.get()
+                if furniture.update_furniture(connection, cursor, item.furniture_id, new_type, new_colour, new_price, new_size, new_aisle):
                     messagebox.showinfo("Success", "Furniture updated!")
                     form_window.destroy()
                 else:
@@ -248,7 +351,7 @@ def main():
         if login_list:
             view_window = tk.Toplevel()
             view_window.title("All Logins")
-            listbox = tk.Listbox(view_window, width=50)
+            listbox = tk.Listbox(view_window, width=70)
             listbox.pack(pady=10)
             for item in login_list:
                 listbox.insert(tk.END, str(item))
@@ -272,13 +375,13 @@ def main():
         password_entry.pack(pady=5)
         def add_user():
             try:
-                id = int(id_entry.get())
+                id_val = int(id_entry.get())
                 level = int(level_entry.get())
                 if level not in [1, 2, 3, 4, 5]:
                     raise ValueError("Level must be between 1 and 5")
                 username = username_entry.get()
                 password = password_entry.get()
-                db.addLogin(connection, cursor, id, level, username, password)
+                db.addLogin(connection, cursor, id_val, level, username, password)
                 messagebox.showinfo("Success", "Login added!")
                 add_window.destroy()
             except ValueError as e:
