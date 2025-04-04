@@ -18,24 +18,53 @@ def build():
     # Now we can safely import PyInstaller
     import PyInstaller.__main__
     
+    # Create data directory if it doesn't exist
+    if not os.path.exists('data'):
+        os.makedirs('data')
+    
     # Clean and create dist directory
     if os.path.exists('dist'):
         shutil.rmtree('dist')
     os.makedirs('dist')
     
-    # Build the executable
-    PyInstaller.__main__.run([
+    # List of PNG files to include
+    png_files = ['chair.png', 'table.png', 'sofa.png', 'cabinet.png', 'bed.png', 'shelf.png']
+    
+    # Build the executable with PNG files included
+    pyinstaller_args = [
         'main.py',
         '--onefile',
         '--windowed',
         '--clean',
-        '--name','Furniture Inventory & Management System.exe',
-    ])
+        '--name', 'Furniture Inventory & Management System.exe',
+    ]
+    
+    # Add each PNG file as a data file
+    for png in png_files:
+        pyinstaller_args.extend(['--add-data', f'{png};.'])
+    
+    PyInstaller.__main__.run(pyinstaller_args)
+    
+    # Create dist/data directory and copy database
     os.makedirs(os.path.join('dist', 'data'), exist_ok=True)
-    shutil.copy2(
-        os.path.join('data', 'placeholderData.db'),
-        os.path.join('dist', 'data', 'placeholderData.db')
-    )
+    
+    # Copy database if it exists
+    try:
+        shutil.copy2(
+            os.path.join('data', 'placeholderData.db'),
+            os.path.join('dist', 'data', 'placeholderData.db')
+        )
+    except FileNotFoundError:
+        print("Note: Database file not found. It will be created on first run.")
+    
+    # Copy PNG files to dist directory
+    for png in png_files:
+        try:
+            shutil.copy2(png, os.path.join('dist', png))
+        except FileNotFoundError:
+            print(f"Warning: {png} not found, the program may not display all images correctly.")
+    
+    # Clean up build directory
     if os.path.exists('build'):
         shutil.rmtree('build')
 

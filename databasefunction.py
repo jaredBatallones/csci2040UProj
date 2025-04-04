@@ -23,6 +23,16 @@ def loadDatabase(test=False):
 
 # Set up the tables if they don’t exist yet
 def initializeDatabase(connection, cursor):
+    # Create login table
+    cursor.execute('''CREATE TABLE IF NOT EXISTS login (
+        staff_id INTEGER PRIMARY KEY,
+        level INTEGER,
+        username VARCHAR(30),
+        password VARCHAR(30)
+    )''')
+    print("Login table initialized.")
+
+    # Create furniture table 
     cursor.execute('''CREATE TABLE IF NOT EXISTS furniture (
         furniture_id INTEGER PRIMARY KEY,
         type VARCHAR(30),
@@ -33,8 +43,6 @@ def initializeDatabase(connection, cursor):
     )''')
     connection.commit()
     print("Furniture table initialized.")
-    
-    connection.commit()
     print("The database tables have been successfully initialized.")
 
 # Add a new user to the login table
