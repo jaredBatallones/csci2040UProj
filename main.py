@@ -33,7 +33,7 @@ def main():
     # Login Frame
     login_frame = ttk.Frame(root)
     login_frame.pack(pady=20)
-    ttk.Label(login_frame, text="Staff ID:").grid(row=0, column=0, padx=5, pady=5)
+    ttk.Label(login_frame, text="Username or ID:").grid(row=0, column=0, padx=5, pady=5)
     id_entry = ttk.Entry(login_frame)
     id_entry.grid(row=0, column=1, padx=5, pady=5)
     ttk.Label(login_frame, text="Password:").grid(row=1, column=0, padx=5, pady=5)
@@ -41,19 +41,19 @@ def main():
     pass_entry.grid(row=1, column=1, padx=5, pady=5)
 
     def attempt_login():
-        staff_id = id_entry.get()
+        identifier = id_entry.get()
         password = pass_entry.get()
-        user = db.attemptLogin(cursor, staff_id, password)
+        user = login.attemptLogin(cursor, identifier, password)
         if user:
-            messagebox.showinfo("Login Success", f"Welcome, {user[2]}!")
+            messagebox.showinfo("Login Success", f"Welcome, {user.get_username()}!")
             login_frame.pack_forget()
-            show_main_menu(user[1])
+            show_main_menu(user.get_level())
         else:
             messagebox.showerror("Login Failed", "Wrong ID or password—try again!")
 
     ttk.Button(login_frame, text="Login", command=attempt_login).grid(row=2, column=1, pady=10)
 
-    # Main Menu Frame (recreated for each login)
+
     def show_main_menu(user_level):
         # Remove any previous main menu frames (using tk.Frame)
         for widget in root.winfo_children():
@@ -196,30 +196,51 @@ def main():
         # Create a new window for picture-based search
         pic_window = tk.Toplevel(root)
         pic_window.title("Search by Picture")
-        pic_window.geometry("400x200")
-        
-        # Load images using Pillow and resize them (adjust the size as needed)
+        #pic_window.geometry("600x250")  # Enough room for grid layout
+    
+        # Load and resize all images
         chair_img = Image.open("chair.png").resize((100, 100))
         table_img = Image.open("table.png").resize((100, 100))
         sofa_img  = Image.open("sofa.png").resize((100, 100))
-        
-        # Convert images to Tkinter PhotoImage objects
+        cabinet_img = Image.open("cabinet.png").resize((100, 100))
+        bed_img = Image.open("bed.png").resize((100, 100))
+        shelf_img = Image.open("shelf.png").resize((100, 100))
+    
+        # Convert to PhotoImage
         chair_photo = ImageTk.PhotoImage(chair_img)
         table_photo = ImageTk.PhotoImage(table_img)
         sofa_photo  = ImageTk.PhotoImage(sofa_img)
-        
-        # Create image buttons for each furniture type.
-        btn_chair = tk.Button(pic_window, image=chair_photo, command=lambda: perform_search("chair"))
-        btn_chair.image = chair_photo  # keep a reference
-        btn_chair.pack(side=tk.LEFT, padx=10, pady=10)
-        
-        btn_table = tk.Button(pic_window, image=table_photo, command=lambda: perform_search("table"))
-        btn_table.image = table_photo
-        btn_table.pack(side=tk.LEFT, padx=10, pady=10)
-        
-        btn_sofa = tk.Button(pic_window, image=sofa_photo, command=lambda: perform_search("sofa"))
-        btn_sofa.image = sofa_photo
-        btn_sofa.pack(side=tk.LEFT, padx=10, pady=10)
+        cabinet_photo = ImageTk.PhotoImage(cabinet_img)
+        bed_photo = ImageTk.PhotoImage(bed_img)
+        shelf_photo = ImageTk.PhotoImage(shelf_img)
+    
+        # Keep a frame and store references
+        frame = tk.Frame(pic_window)
+        frame.pack(pady=10)
+    
+        images = [
+            ("Chair", chair_photo, "chair"),
+            ("Table", table_photo, "table"),
+            ("Sofa", sofa_photo, "sofa"),
+            ("Cabinet", cabinet_photo, "cabinet"),
+            ("Bed", bed_photo, "bed"),
+            ("Shelf", shelf_photo, "shelf"),
+        ]
+    
+        # Helper to add buttons in grid
+        def add_button(image, keyword, row, col, label):
+            btn = tk.Button(frame, image=image, command=lambda: perform_search(keyword))
+            btn.image = image  # prevent garbage collection
+            btn.grid(row=row * 2, column=col, padx=10, pady=5)
+            tk.Label(frame, text=label).grid(row=row * 2 + 1, column=col)
+    
+        # Loop through and place in 2 rows
+        for i, (label, img, key) in enumerate(images):
+            row = i // 3
+            col = i % 3
+            add_button(img, key, row, col, label)
+
+
     def perform_search(keyword):
         # Use your furniture module's search function to find matches based on the keyword
         matches = furniture.search_furniture(cursor, keyword)

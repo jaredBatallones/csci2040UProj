@@ -47,14 +47,14 @@ def addLogin(connection, cursor, id, level, username, password):
         print(f"User with Staff ID {id} already exists in the system.")
 
 # Check if login credentials are valid
-def attemptLogin(cursor, id, password):
-    cursor.execute("SELECT * FROM login WHERE staff_id = ? AND password = ?", (id, password))
-    user = cursor.fetchone()
-    if user:
-        print("Authentication successful.")
-        return user  # Returns the entire user row
-    print("Authentication failed. Please verify your credentials and try again.")
-    return None
+#def attemptLogin(cursor, id, password):
+#    cursor.execute("SELECT * FROM login WHERE staff_id = ? AND password = ?", (id, password))
+#    user = cursor.fetchone()
+#    if user:
+#        print("Authentication successful.")
+#        return user  # Returns the entire user row
+#    print("Authentication failed. Please verify your credentials and try again.")
+#    return None
 
 # Close the database connection when done
 def closeDatabase(connection):
