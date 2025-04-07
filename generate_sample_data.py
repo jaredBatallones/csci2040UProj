@@ -73,6 +73,11 @@ def initializeDatabase(connection, cursor):
        cursor : sqlite3.Cursor
            Cursor to execute SQL commands.
    """
+    cursor.execute('''CREATE TABLE IF NOT EXISTS login (
+        staff_id INTEGER PRIMARY KEY,
+        level INTEGER,
+        username VARCHAR(30),
+        password VARCHAR(30))''')
     cursor.execute("DROP TABLE IF EXISTS furniture")
     cursor.execute('''CREATE TABLE IF NOT EXISTS furniture (
         furniture_id INTEGER PRIMARY KEY,

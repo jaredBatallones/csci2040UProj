@@ -39,6 +39,11 @@ def initializeDatabase(connection, cursor):
         connection (sqlite3.Connection): The database connection object.
         cursor (sqlite3.Cursor): The database cursor object.
     """
+    cursor.execute('''CREATE TABLE IF NOT EXISTS login (
+        staff_id INTEGER PRIMARY KEY,
+        level INTEGER,
+        username VARCHAR(30),
+        password VARCHAR(30))''')
     cursor.execute('''CREATE TABLE IF NOT EXISTS furniture (
         furniture_id INTEGER PRIMARY KEY,
         type VARCHAR(30),
