@@ -73,11 +73,6 @@ def initializeDatabase(connection, cursor):
        cursor : sqlite3.Cursor
            Cursor to execute SQL commands.
    """
-    cursor.execute('''CREATE TABLE IF NOT EXISTS login (
-        staff_id INTEGER PRIMARY KEY,
-        level INTEGER,
-        username VARCHAR(30),
-        password VARCHAR(30))''')
     cursor.execute("DROP TABLE IF EXISTS furniture")
     cursor.execute('''CREATE TABLE IF NOT EXISTS furniture (
         furniture_id INTEGER PRIMARY KEY,
@@ -159,7 +154,7 @@ def insert_sample_data(connection, cursor, data):
 # --- Main Routine to Run the Script ---
 
 if __name__ == "__main__":
-    connection, cursor = loadDatabase(test=True)
+    connection, cursor = loadDatabase(test=False)
     initializeDatabase(connection, cursor)
     data = generate_sample_data(100)
     insert_sample_data(connection, cursor, data)

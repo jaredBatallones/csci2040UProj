@@ -37,17 +37,17 @@ def main():
     """
     # Set up the database
 
-    connection, cursor = db.loadDatabase(test=True)
+    connection, cursor = db.loadDatabase(test=False)
     db.initializeDatabase(connection, cursor)
     login.initialize_users(connection, cursor)
 
     # Add test furniture if not present (with new size and aisle fields)
-    cursor.execute("SELECT COUNT(*) FROM furniture WHERE furniture_id = 101")
-    if cursor.fetchone()[0] == 0:
-        furniture.add_furniture(connection, cursor, 101, "Chair", "Black", 49.99, "Medium", "A3")
-    cursor.execute("SELECT COUNT(*) FROM furniture WHERE furniture_id = 102")
-    if cursor.fetchone()[0] == 0:
-        furniture.add_furniture(connection, cursor, 102, "Table", "Brown", 99.99, "Large", "B1")
+    #cursor.execute("SELECT COUNT(*) FROM furniture WHERE furniture_id = 101")
+    #if cursor.fetchone()[0] == 0:
+    #    furniture.add_furniture(connection, cursor, 101, "Chair", "Black", 49.99, "Medium", "A3")
+    #cursor.execute("SELECT COUNT(*) FROM furniture WHERE furniture_id = 102")
+    #if cursor.fetchone()[0] == 0:
+    #    furniture.add_furniture(connection, cursor, 102, "Table", "Brown", 99.99, "Large", "B1")
 
     # Set up the Tkinter window
     root = tk.Tk()
