@@ -7,12 +7,7 @@ from PIL import Image, ImageTk
 
 def main():
     # Set up the database
-    # test injection ( ' OR '1'='1 )
-    #' OR '1'='1
 
-    #Chair'; DROP TABLE furniture;--
-
-    #'); UPDATE login SET level=1 WHERE staff_id=2;--
     connection, cursor = db.loadDatabase(test=True)
     db.initializeDatabase(connection, cursor)
     login.initialize_users(connection, cursor)
