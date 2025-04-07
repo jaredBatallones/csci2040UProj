@@ -1,8 +1,23 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Mar 28 03:31:48 2025
 
-@author: Wei Cui
+
+
+
+Furniture Sample Data Generator and Database Initializer
+
+
+
+This script provides tools to:
+- Load and connect to a SQLite database
+- Initialize the furniture table schema
+- Generate random sample furniture data
+- Insert that data into the database
+
+Can be run as a standalone script to populate a test database.
+
+
+
 """
 
 import random
@@ -13,6 +28,26 @@ import sys
 # --- Database Setup Functions (similar to your existing code) ---
 
 def loadDatabase(test=False):
+    """
+   Establishes a connection to the SQLite database.
+
+   If running in a frozen environment (e.g., PyInstaller EXE),
+   the database will be located relative to the executable.
+   Otherwise, it’s relative to the script’s file location.
+
+   Parameters
+   ----------
+   test : bool, optional
+       If True, connects to a test database named 'placeholderTestData.db'.
+       If False, connects to 'placeholderData.db'.
+
+   Returns
+   -------
+   connection : sqlite3.Connection
+       SQLite connection object.
+   cursor : sqlite3.Cursor
+       Cursor object used to execute SQL commands.
+   """
     if getattr(sys, 'frozen', False):
         dir = os.path.dirname(sys.executable)
     else:
@@ -25,6 +60,19 @@ def loadDatabase(test=False):
     return connection, cursor
 
 def initializeDatabase(connection, cursor):
+    """
+       Drops and recreates the `furniture` table with the correct schema.
+    
+       This function is intended to reset the database structure and can be safely
+       used during testing or setup to wipe existing data.
+    
+       Parameters
+       ----------
+       connection : sqlite3.Connection
+           Active database connection.
+       cursor : sqlite3.Cursor
+           Cursor to execute SQL commands.
+   """
     cursor.execute("DROP TABLE IF EXISTS furniture")
     cursor.execute('''CREATE TABLE IF NOT EXISTS furniture (
         furniture_id INTEGER PRIMARY KEY,
@@ -40,6 +88,25 @@ def initializeDatabase(connection, cursor):
 # --- Script to Generate and Insert Sample Data ---
 
 def generate_sample_data(num_entries=100):
+    
+    """
+  Generates a list of randomized furniture entries.
+
+  Each entry includes a unique ID and randomized values for type, colour,
+  price, size, and aisle. Intended for testing or demo purposes.
+
+  Parameters
+  ----------
+  num_entries : int, optional
+      Number of sample furniture records to generate (default is 100).
+
+  Returns
+  -------
+  list of tuple
+      A list of tuples, each representing a row in the furniture table.
+  """
+  
+  
     """Generates a list of sample furniture entries."""
     # Define possible values for each field.
     types = ["Chair", "Table", "Sofa", "Bed", "Desk", "Cabinet", "Shelf"]
@@ -60,7 +127,21 @@ def generate_sample_data(num_entries=100):
     return sample_data
 
 def insert_sample_data(connection, cursor, data):
-    """Inserts generated sample data into the furniture table."""
+    """
+    Inserts a list of furniture records into the database.
+
+    Skips any record that would violate the UNIQUE constraint (duplicate ID).
+
+    Parameters
+    ----------
+    connection : sqlite3.Connection
+        Active database connection.
+    cursor : sqlite3.Cursor
+        Cursor to execute SQL commands.
+    data : list of tuple
+        List of records to be inserted into the furniture table.
+    """
+    
     for record in data:
         try:
             cursor.execute("INSERT INTO furniture VALUES (?, ?, ?, ?, ?, ?)", record)

@@ -3,6 +3,15 @@ import os
 import sys
 
 def loadDatabase(test=False):
+    """
+    Establishes a connection to the SQLite database.
+
+    Parameters:
+        test (bool): If True, connects to the test database. Otherwise, connects to the production database.
+
+    Returns:
+        tuple: (connection, cursor) to interact with the database.
+    """
     # Get the executable's directory or script directory
     if getattr(sys, 'frozen', False):
         dir = os.path.dirname(sys.executable)
@@ -23,6 +32,13 @@ def loadDatabase(test=False):
 
 # Set up the tables if they don’t exist yet
 def initializeDatabase(connection, cursor):
+    """
+    Initializes the database by creating the 'furniture' table if it does not already exist.
+
+    Parameters:
+        connection (sqlite3.Connection): The database connection object.
+        cursor (sqlite3.Cursor): The database cursor object.
+    """
     cursor.execute('''CREATE TABLE IF NOT EXISTS furniture (
         furniture_id INTEGER PRIMARY KEY,
         type VARCHAR(30),
@@ -39,6 +55,17 @@ def initializeDatabase(connection, cursor):
 
 # Add a new user to the login table
 def addLogin(connection, cursor, id, level, username, password):
+    """
+    Adds a new user login entry to the 'login' table.
+
+    Parameters:
+        connection (sqlite3.Connection): The database connection.
+        cursor (sqlite3.Cursor): The cursor for executing SQL commands.
+        id (int): Staff ID (must be unique).
+        level (int): User access level (1 = Admin, etc.).
+        username (str): The username for the login.
+        password (str): The password for the login.
+    """
     try:
         cursor.execute("INSERT INTO login VALUES (?, ?, ?, ?)", (id, level, username, password))
         connection.commit()
@@ -58,5 +85,11 @@ def addLogin(connection, cursor, id, level, username, password):
 
 # Close the database connection when done
 def closeDatabase(connection):
+    """
+    Closes the database connection.
+
+    Parameters:
+        connection (sqlite3.Connection): The open connection to close.
+    """
     connection.close()
     print("The database connection has been closed.")

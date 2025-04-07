@@ -5,7 +5,36 @@ import furniture
 import login
 from PIL import Image, ImageTk
 
+"""
+ iNTRO:
+     This is the main script for our Furniture Inventory & Management System
+     it as the user to login using a GUI system, it will always have a database with
+     a dummy database, but in most cases uses the database supplied by the Client.
+ 
+ 
+"""
+
 def main():
+    
+    """
+    Main entry point for the Furniture Inventory & Management System (FIMS).
+
+    This function sets up the database, initializes sample furniture and user data
+    Then it launches the Tkinter-based GUI and it asks the user to login to our
+    and FIMS system.
+    
+    it's responsiblities are:
+        
+       - Connect to and initialize the database
+       - Pre-load some furniture items if missing, this was done for testing
+       and to make sure it runs. However in the main use case the Database is loaded already
+       - However due to built in dummy database, the script will always run
+       
+       - Display a login window for staff
+       - Handle authentication and transition to main menu
+    
+    
+    """
     # Set up the database
 
     connection, cursor = db.loadDatabase(test=True)
@@ -36,6 +65,13 @@ def main():
     pass_entry.grid(row=1, column=1, padx=5, pady=5)
 
     def attempt_login():
+        
+        """
+        Attempts login using credentials from Entry fields.
+        If successful, hides login UI and shows main menu.
+        """
+        
+        
         identifier = id_entry.get()
         password = pass_entry.get()
         user = login.attemptLogin(cursor, identifier, password)
@@ -50,6 +86,17 @@ def main():
 
 
     def show_main_menu(user_level):
+        
+        """
+        Displays the main menu based on the user's access level.
+        uses a number of if conditions to see the user's access level
+
+        Parameters
+        ----------
+        user_level : int
+            Access level of the current user.
+        """
+        
         # Remove any previous main menu frames (using tk.Frame)
         for widget in root.winfo_children():
             if isinstance(widget, tk.Frame) and widget != login_frame:
@@ -115,6 +162,20 @@ def main():
 
 
     def view_all(cursor):
+        """
+       Opens a window displaying all furniture items stored in the database.
+    
+       This function retrieves the complete list of `Furniture` objects from the database
+       and displays each item in a scrollable `Listbox` widget inside a new top-level window.
+    
+       If no furniture exists in the database, an information message is shown to the user.
+    
+       Parameters
+       ----------
+       cursor : sqlite3.Cursor
+           Active database cursor used to query furniture data.
+           """
+   
         furniture_list = furniture.get_furniture_list(cursor)
         if furniture_list:
             view_window = tk.Toplevel()
@@ -127,6 +188,19 @@ def main():
             messagebox.showinfo("Info", "No furniture items yet!")
 
     def view_specific(cursor):
+        """
+        Opens a window to view a specific furniture item by ID.
+    
+        Prompts the user to input a Furniture ID and searches the database
+        for a matching item. If found, the details of the furniture are displayed
+        in a message box. If no match is found, an error message is shown.
+    
+        Parameters
+        ----------
+        cursor : sqlite3.Cursor
+            Active database cursor used to retrieve furniture data.
+        """
+            
         specific_window = tk.Toplevel()
         specific_window.title("View Specific Furniture")
         ttk.Label(specific_window, text="Furniture ID:").pack(pady=5)
@@ -144,6 +218,19 @@ def main():
         ttk.Button(specific_window, text="View", command=show_item).pack(pady=5)
 
     def sort_furniture(cursor):
+        """
+    Opens a window that allows the user to sort the furniture list by type or price.
+
+    The user selects a sort option via radio buttons (either 'Type' or 'Price').
+    Once the option is selected and the 'Sort' button is clicked, a sorted list
+    of furniture is shown in a new window.
+
+    Parameters
+    ----------
+    cursor : sqlite3.Cursor
+        Active database cursor used to retrieve and sort furniture data.
+    """
+    
         sort_window = tk.Toplevel()
         sort_window.title("Sort Furniture")
         ttk.Label(sort_window, text="Sort by:").pack(pady=5)
@@ -151,6 +238,11 @@ def main():
         ttk.Radiobutton(sort_window, text="Type", variable=sort_choice, value="type").pack()
         ttk.Radiobutton(sort_window, text="Price", variable=sort_choice, value="price").pack()
         def sort_and_show():
+            """
+            Sorts the furniture based on the selected sort option and displays the results.
+            
+             """
+
             furniture_list = furniture.get_furniture_list(cursor)
             if sort_choice.get() == "type":
                 sorted_list = furniture.sort_furniture_by_type(furniture_list)
@@ -168,12 +260,36 @@ def main():
         ttk.Button(sort_window, text="Sort", command=sort_and_show).pack(pady=5)
 
     def search_furniture(cursor):
+        
+        """
+        this opens a window that allows the user to search for furniture by text.
+    
+        The keyword is matched against the 'type' and 'colour' fields in the database.
+        Matching results are displayed in a new window. If no matches are found, an
+        information message is shown.
+        
+        for example one can search Type like Chair, or chair or Bed or bed. 
+        or colors like Red or red, or White or white. Whether the user capitalized it doesn't
+        matter
+    
+        Parameters
+        ----------
+        cursor : sqlite3.Cursor
+            Active database cursor used to search furniture data.
+        """
         search_window = tk.Toplevel()
         search_window.title("Search Furniture")
         ttk.Label(search_window, text="Keyword:").pack(pady=5)
         keyword_entry = ttk.Entry(search_window)
         keyword_entry.pack(pady=5)
         def search_and_show():
+            """
+        Executes the search using the provided keyword and shows the results.
+     
+        KEYWORDS: keywords like 'chair' or 'Chair' or 'black' or 'Black'
+        
+     
+        """
             keyword = keyword_entry.get().lower()
             matches = furniture.search_furniture(cursor, keyword)
             if matches:
@@ -188,6 +304,16 @@ def main():
             search_window.destroy()
         ttk.Button(search_window, text="Search", command=search_and_show).pack(pady=5)
     def search_by_picture():
+        
+        """
+  Opens a window with clickable furniture images for picture-based search.
+
+  Each button represents a type of furniture (e.g., Chair, Table, Sofa).
+  When the user clicks on an image, the system searches for matching furniture
+  records based on the type and displays the results in a new window.
+
+  This visual method allows users to perform searches without typing keywords.
+  """
         # Create a new window for picture-based search
         pic_window = tk.Toplevel(root)
         pic_window.title("Search by Picture")
@@ -224,6 +350,25 @@ def main():
     
         # Helper to add buttons in grid
         def add_button(image, keyword, row, col, label):
+            
+            """
+      Places an image button and corresponding label in the grid.
+
+      Parameters
+      ----------
+      image : PhotoImage
+          Image to display in the button.
+      keyword : str
+          Keyword to trigger when clicked.
+      row : int
+          Row index in the grid.
+      col : int
+          Column index in the grid.
+      label : str
+          Text label displayed under the image.
+      """
+      
+      
             btn = tk.Button(frame, image=image, command=lambda: perform_search(keyword))
             btn.image = image  # prevent garbage collection
             btn.grid(row=row * 2, column=col, padx=10, pady=5)
@@ -237,6 +382,17 @@ def main():
 
 
     def perform_search(keyword):
+        """
+   Performs a furniture search based on the given keyword and displays results.
+
+   Used by `search_by_picture` to retrieve furniture items that match
+   the clicked image's associated keyword (e.g., "chair", "bed").
+
+   Parameters
+   ----------
+   keyword : str
+       The keyword used to match furniture type or colour.
+   """
         # Use your furniture module's search function to find matches based on the keyword
         matches = furniture.search_furniture(cursor, keyword)
         if matches:
@@ -252,6 +408,22 @@ def main():
 
 
     def add_furniture(connection, cursor):
+        
+        """
+    Opens a form window for adding a new furniture item to the database.
+
+    Prompts the user to input all necessary fields: ID, Type, Colour, Price, Size, and Aisle.
+    Validates the ID and Price fields to ensure correct data types.
+    Attempts to add the furniture via the `furniture.add_furniture()` function.
+
+    Parameters
+    ----------
+    connection : sqlite3.Connection
+        Active database connection.
+    cursor : sqlite3.Cursor
+        Active database cursor.
+    """
+    
         add_window = tk.Toplevel()
         add_window.title("Add Furniture")
         ttk.Label(add_window, text="ID:").pack(pady=5)
@@ -274,6 +446,10 @@ def main():
         aisle_entry = ttk.Entry(add_window)
         aisle_entry.pack(pady=5)
         def add_item():
+            """
+        Gathers input values, validates them, and adds the furniture to the database.
+        Displays appropriate success or error messages.
+        """
             try:
                 id_val = int(id_entry.get())
                 type_val = type_entry.get()
@@ -291,12 +467,28 @@ def main():
         ttk.Button(add_window, text="Add", command=add_item).pack(pady=5)
 
     def edit_furniture(connection, cursor):
+        """
+   Opens a prompt window to load a specific furniture item by its ID.
+
+   Once a valid ID is entered, the corresponding item is passed to `edit_form()`
+   for editing in a pre-filled form window. If the ID is not found, an error is shown.
+
+   Parameters
+   ----------
+   connection : sqlite3.Connection
+       Active database connection.
+   cursor : sqlite3.Cursor
+       Active database cursor.
+   """
         edit_window = tk.Toplevel()
         edit_window.title("Edit Furniture")
         ttk.Label(edit_window, text="Furniture ID:").pack(pady=5)
         id_entry = ttk.Entry(edit_window)
         id_entry.pack(pady=5)
         def load_item():
+            """
+      Searches for the entered furniture ID and opens the edit form if found.
+      """
             furniture_id = id_entry.get()
             furniture_list = furniture.get_furniture_list(cursor)
             for item in furniture_list:
@@ -308,6 +500,15 @@ def main():
         ttk.Button(edit_window, text="Load", command=load_item).pack(pady=5)
 
     def edit_form(item):
+        """
+    Opens a form window pre-filled with the selected furniture item's data,
+    allowing the user to modify the fields and save updates to the database.
+
+    Parameters
+    ----------
+    item : Furniture
+        The Furniture object to be edited.
+    """
         form_window = tk.Toplevel()
         form_window.title("Edit Furniture")
         ttk.Label(form_window, text="Type:").pack(pady=5)
@@ -332,6 +533,11 @@ def main():
         aisle_entry.insert(0, item.aisle if hasattr(item, 'aisle') else "")
         aisle_entry.pack(pady=5)
         def update_item():
+            
+            """
+      Attempts to update the furniture item in the database using the new values.
+      Displays success or error message depending on the result.
+      """
             new_type = type_entry.get()
             new_colour = colour_entry.get()
             try:
@@ -348,12 +554,26 @@ def main():
         ttk.Button(form_window, text="Update", command=update_item).pack(pady=5)
 
     def remove_furniture(connection, cursor):
+        """
+Opens a window to remove a furniture item from the database using its ID.
+
+Parameters
+----------
+connection : sqlite3.Connection
+    Active database connection.
+cursor : sqlite3.Cursor
+    Active database cursor.
+"""
         remove_window = tk.Toplevel()
         remove_window.title("Remove Furniture")
         ttk.Label(remove_window, text="Furniture ID:").pack(pady=5)
         id_entry = ttk.Entry(remove_window)
         id_entry.pack(pady=5)
         def remove_item():
+            """
+      Attempts to delete the furniture record with the given ID.
+      Shows success or failure message accordingly.
+      """
             furniture_id = id_entry.get()
             if furniture.remove_furniture(connection, cursor, furniture_id):
                 messagebox.showinfo("Success", "Furniture removed if it was there!")
@@ -363,6 +583,17 @@ def main():
         ttk.Button(remove_window, text="Remove", command=remove_item).pack(pady=5)
 
     def view_logins(cursor):
+        """
+   Opens a window displaying all login records stored in the database.
+
+   Intended for admin-level users. If no records are found, an information
+   message is shown instead.
+
+   Parameters
+   ----------
+   cursor : sqlite3.Cursor
+       Active database cursor used to retrieve login records.
+   """
         login_list = login.get_login_list(cursor)
         if login_list:
             view_window = tk.Toplevel()
@@ -375,6 +606,20 @@ def main():
             messagebox.showinfo("Info", "No logins yet!")
 
     def add_login(connection, cursor):
+        """
+    Opens a form window for adding a new staff login to the system.
+
+    Prompts the admin to enter the staff ID, access level (1–5), username, and password.
+    Validates that the ID and level are numeric and within range. If valid, inserts the
+    login into the database using `db.addLogin()`.
+
+    Parameters
+    ----------
+    connection : sqlite3.Connection
+        Active database connection.
+    cursor : sqlite3.Cursor
+        Active database cursor.
+    """
         add_window = tk.Toplevel()
         add_window.title("Add Login")
         ttk.Label(add_window, text="Staff ID:").pack(pady=5)
@@ -390,6 +635,10 @@ def main():
         password_entry = ttk.Entry(add_window)
         password_entry.pack(pady=5)
         def add_user():
+            """
+        Validates and adds the login data to the database.
+        Shows confirmation or error messages based on success/failure.
+        """
             try:
                 id_val = int(id_entry.get())
                 level = int(level_entry.get())
@@ -405,12 +654,31 @@ def main():
         ttk.Button(add_window, text="Add", command=add_user).pack(pady=5)
 
     def delete_login(connection, cursor):
+        """
+   Opens a window that prompts the admin to delete a staff login by ID.
+
+   The login with the entered staff ID is removed from the `login` table.
+   A confirmation message is shown regardless of whether the ID existed.
+
+   Parameters
+   ----------
+   connection : sqlite3.Connection
+       Active database connection.
+   cursor : sqlite3.Cursor
+       Active database cursor.
+   """
         delete_window = tk.Toplevel()
         delete_window.title("Delete Login")
         ttk.Label(delete_window, text="Staff ID:").pack(pady=5)
         id_entry = ttk.Entry(delete_window)
         id_entry.pack(pady=5)
         def delete_user():
+            """
+       This if you have the previlge or the access level can delete users
+           WARNING: THIS FUNCUTION CAN DELETE EXISITING USERS
+       Attempts to delete the user with the provided Staff ID from the database.
+       Shows a confirmation message after deletion.
+       """
             staff_id = id_entry.get()
             cursor.execute("DELETE FROM login WHERE staff_id = ?", (staff_id,))
             connection.commit()
@@ -419,6 +687,22 @@ def main():
         ttk.Button(delete_window, text="Delete", command=delete_user).pack(pady=5)
 
     def log_out(root, login_frame, current_frame):
+        """
+        This is a red button where you can log out.
+       Logs the current user out and returns to the login screen.
+    
+       Destroys the current UI frame (usually the main menu) and makes the login frame
+       visible again. This effectively resets the interface to its initial state.
+    
+       Parameters
+       ----------
+       root : tk.Tk
+           The main Tkinter application window.
+       login_frame : ttk.Frame
+           The login frame to be shown again after logout.
+       current_frame : tk.Frame
+           The currently displayed frame to be destroyed.
+       """
         current_frame.destroy()
         login_frame.pack(pady=20)
 
